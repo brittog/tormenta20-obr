@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tormenta 20 — Fichas</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body { font-size: 14px; }
+.painel-wrap { padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 100vh; }
+.painel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--crimson);
+  margin-bottom: 4px;
+}
+.painel-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--crimson);
+  flex: 1;
+}
+.painel-logo span { font-size: 0.7rem; color: var(--text-dim); display: block; font-weight: 400; letter-spacing: 0.05em; }
+.empty-state {
+  text-align: center;
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 30px 10px;
+  font-size: 0.85rem;
+}
+.section-sep {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 10px 0 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-sep::before, .section-sep::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--border-dim);
+}
+.ficha-actions { display: flex; gap: 5px; margin-left: auto; align-items: center; }
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border-dim);
+  color: var(--text-dim);
+  border-radius: 3px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.btn-icon:hover { border-color: var(--crimson); color: var(--crimson-lt); }
+.btn-icon.del:hover { border-color: var(--crimson); color: var(--crimson); }
+.painel-ficha-card { cursor: default; }
+.painel-ficha-card .card-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.card-info { flex: 1; cursor: pointer; }
+.card-info:hover .ficha-nome { color: var(--crimson-lt); }
+#new-btns { display: flex; gap: 6px; flex-direction: column; }
+.btn-new {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+.btn-new:hover { border-color: var(--gold-dim); color: var(--gold); background: #1f1111; }
+.btn-new .icon { font-size: 1.1rem; }
+.pv-mini {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--crimson);
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="painel-wrap">
+
+  <div class="painel-header">
+    <div class="painel-logo">
+      TORMENTA 20
+      <span>Fichas de Personagem</span>
+    </div>
+  </div>
+
+  <div id="loading" class="empty-state">Carregando fichas…</div>
+  <div id="lista-pj" style="display:none"></div>
+  <div id="lista-ameaca" style="display:none"></div>
+
+  <hr class="divider" style="margin-top:auto">
+
+  <div id="new-btns">
+    <button class="btn-new" onclick="novaFicha('personagem')">
+      <span class="icon">👤</span> Nova Ficha de Personagem
+    </button>
+    <button class="btn-new" onclick="novaFicha('ameaca')">
+      <span class="icon">💀</span> Nova Ficha de Ameaça
+    </button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@1.10.0/dist/bundle.js"></script>
+<script src="../js/t20.js"></script>
+<script>
+const BASE = window.location.href.replace(/\/pages\/[^/]+$/, '');
+
+T20.onReady(async () => {
+  await renderLista();
+
+  // Watch for changes from other players
+  try {
+    OBR.room.onMetadataChange(async () => { await renderLista(); });
+  } catch {}
+});
+
+async function renderLista() {
+  const todas = await T20.getAllFichas();
+  const pjs    = Object.values(todas).filter(f => f.tipo === 'personagem');
+  const ameacas= Object.values(todas).filter(f => f.tipo === 'ameaca');
+
+  const loading = document.getElementById('loading');
+  const listaPJ = document.getElementById('lista-pj');
+  const listaAM = document.getElementById('lista-ameaca');
+  loading.style.display = 'none';
+
+  // PJs
+  if (pjs.length > 0) {
+    listaPJ.style.display = 'block';
+    listaPJ.innerHTML = `<div class="section-sep">Personagens</div>` +
+      pjs.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(f => fichaCardHTML(f)).join('');
+  } else {
+    listaPJ.style.display = 'none';
+  }
+
+  // Ameaças
+  if (ameacas.length > 0) {
+    listaAM.style.display = 'block';
+    listaAM.innerHTML = `<div class="section-sep">Ameaças</div>` +
+      ameacas.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(f => fichaCardHTML(f)).join('');
+  } else {
+    listaAM.style.display = 'none';
+  }
+
+  if (pjs.length === 0 && ameacas.length === 0) {
+    loading.style.display = 'block';
+    loading.textContent = 'Nenhuma ficha criada ainda. Clique abaixo para criar.';
+  }
+}
+
+function fichaCardHTML(f) {
+  const badge = f.tipo === 'ameaca'
+    ? `<span class="ficha-badge badge-ameaca">Ameaça ND ${f.nd || '?'}</span>`
+    : `<span class="ficha-badge badge-pj">Personagem • Nível ${f.nivel || 1}</span>`;
+
+  const pvInfo = f.tipo === 'personagem'
+    ? `<span class="pv-mini">PV ${f.pv_atual ?? f.pv_max ?? '?'}/${f.pv_max ?? '?'}</span>`
+    : `<span class="pv-mini">PV ${f.pv ?? '?'}</span>`;
+
+  const meta = f.tipo === 'personagem'
+    ? [f.raca, f.classe, f.divindade].filter(Boolean).join(' • ')
+    : [f.tipo_criatura, f.tamanho].filter(Boolean).join(' • ');
+
+  return `
+    <div class="painel-ficha-card card">
+      <div class="card-body">
+        <div class="card-info" onclick="abrirFicha('${f._id}', '${f.tipo}')">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            ${badge} ${pvInfo}
+          </div>
+          <div class="ficha-nome">${f.nome || '(sem nome)'}</div>
+          ${meta ? `<div class="ficha-meta">${meta}</div>` : ''}
+        </div>
+        <div class="ficha-actions">
+          <button class="btn-icon del" title="Excluir" onclick="excluirFicha('${f._id}', event)">✕</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function novaFicha(tipo) {
+  const id = T20.uuid();
+  await T20.saveFicha(id, { tipo, nome: '', nivel: 1 });
+  abrirFicha(id, tipo);
+}
+
+function abrirFicha(id, tipo) {
+  const page = tipo === 'ameaca' ? 'ficha-ameaca.html' : 'ficha-personagem.html';
+  const url = `${BASE}/pages/${page}?id=${id}`;
+  try {
+    OBR.modal.open({
+      id: `tormenta20/modal/${id}`,
+      url: url,
+      height: 700,
+      width: 960,
+    });
+  } catch {
+    window.open(url, '_blank');
+  }
+}
+
+async function excluirFicha(id, e) {
+  e.stopPropagation();
+  if (!confirm('Excluir esta ficha?')) return;
+  await T20.deleteFicha(id);
+  await renderLista();
+}
+</script>
+</body>
+</html>
