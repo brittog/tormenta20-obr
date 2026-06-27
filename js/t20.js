@@ -3,6 +3,7 @@
  * Funciona dentro do OBR (room metadata) OU como fallback em localStorage.
  */
 
+
 const T20 = (() => {
 
   const NS  = 'com.tormenta20.ficha';
