@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Personagem — Tormenta 20</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* ── Layout ── */
+.ficha-layout {
+  display: grid;
+  grid-template-columns: 1fr 272px;
+  min-height: calc(100vh - 54px);
+}
+.col-main   { padding: 14px 16px; overflow-y: auto; border-right: 1px solid var(--border-dim); }
+.col-pericias { padding: 12px 10px; overflow-y: auto; background: var(--bg-panel); }
+
+/* Info strips */
+.info-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.info-grid-3 { display: grid; grid-template-columns: 1fr 1fr 3fr; gap: 6px; margin-bottom: 12px; }
+
+/* Atributos */
+.attr-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; margin-bottom: 12px; }
+.attr-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  padding: 5px 4px 3px;
+}
+.attr-box .an { font-family:'Cinzel',serif; font-size:.6rem; color:var(--crimson); font-weight:700; letter-spacing:.1em; }
+.attr-box input {
+  background:transparent; border:none; border-bottom:1px solid var(--border-dim);
+  color:var(--text-main); font-family:'Cinzel',serif; font-size:1.3rem; font-weight:700;
+  text-align:center; width:100%; padding:2px 0;
+}
+.attr-box input:focus { outline:none; border-color:var(--crimson); }
+.attr-box .am { font-size:.62rem; color:var(--text-dim); margin-top:1px; }
+
+/* Recursos + Defesa */
+.rec-def-row { display: grid; grid-template-columns: 1fr 1fr 180px; gap: 8px; margin-bottom: 12px; }
+.rec-box {
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius:4px; padding:8px 10px;
+}
+.rec-box .rec-name {
+  font-family:'Cinzel',serif; font-size:.65rem; font-weight:700; letter-spacing:.08em;
+}
+.rec-box .rec-name.pv { color:var(--crimson); }
+.rec-box .rec-name.pm { color:#2980b9; }
+.rec-inline { display:flex; gap:5px; align-items:center; margin-top:4px; }
+.rec-inline span { color:var(--text-dim); font-size:.9rem; }
+.rec-inline input { font-size:1rem; text-align:center; }
+.bar-track { background:var(--bg-deep); border-radius:3px; height:7px; overflow:hidden; margin-top:4px; }
+.bar-fill  { height:100%; border-radius:3px; transition:width .3s; }
+.bar-pv { background: linear-gradient(90deg,#7a1515,#c0392b); }
+.bar-pm { background: linear-gradient(90deg,#153a6b,#2980b9); }
+
+/* Defesa */
+.def-box {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius:4px; padding:8px; text-align:center;
+}
+.def-total { font-family:'Cinzel',serif; font-size:2.3rem; font-weight:700; color:var(--text-main); line-height:1; }
+.def-lbl   { font-family:'Cinzel',serif; font-size:.6rem; color:var(--crimson); letter-spacing:.12em; }
+.def-parts { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-top:5px; }
+.def-part label  { font-family:'Cinzel',serif; font-size:.5rem; color:var(--text-dim); text-transform:uppercase; display:block; margin-bottom:1px; }
+.def-part .dv    { font-family:'Cinzel',serif; font-size:.8rem; color:var(--gold); }
+
+/* Tabelas */
+.t20-table { width:100%; border-collapse:collapse; }
+.t20-table th {
+  font-family:'Cinzel',serif; font-size:.58rem; color:var(--text-dim);
+  text-transform:uppercase; letter-spacing:.06em;
+  border-bottom:1px solid var(--border); padding:3px 4px; text-align:left;
+  background:var(--bg-panel);
+}
+.t20-table td { padding:2px 4px; border-bottom:1px solid var(--border-dim); }
+.t20-table td input { font-size:.82rem; padding:2px 4px; }
+.t20-table tr:last-child td { border-bottom:none; }
+
+/* Habilidades */
+.hab-2col { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.hab-entry {
+  background:var(--bg-input); border:1px solid var(--border-dim);
+  border-radius:3px; padding:5px 8px; display:flex; flex-direction:column; gap:2px;
+}
+.hab-row { display:flex; align-items:center; gap:5px; }
+.hab-entry input.hn {
+  background:transparent; border:none; border-bottom:1px solid var(--border-dim);
+  color:var(--crimson-lt); font-style:italic; font-weight:600; font-size:.85rem;
+  flex:1; padding:1px 0;
+}
+.hab-entry textarea.hd {
+  background:transparent; border:none; resize:none;
+  font-size:.8rem; min-height:34px; width:100%; color:var(--text-main); line-height:1.35;
+}
+.hab-entry input:focus, .hab-entry textarea:focus { outline:none; }
+
+/* Armadura */
+.arm-row { display:grid; grid-template-columns:1fr 64px 64px 28px; gap:3px; align-items:center; padding:2px 0; border-bottom:1px solid var(--border-dim); }
+.arm-row.hdr { font-family:'Cinzel',serif; font-size:.58rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); }
+.arm-row input { font-size:.82rem; }
+
+/* Perícias */
+.per-hdr {
+  display:grid; grid-template-columns:1fr 40px 22px 44px 36px;
+  gap:2px; padding:2px 4px;
+  font-family:'Cinzel',serif; font-size:.55rem; color:var(--text-dim);
+  text-transform:uppercase; letter-spacing:.04em;
+  border-bottom:1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg-panel); z-index:2;
+}
+.per-row {
+  display:grid; grid-template-columns:1fr 40px 22px 44px 36px;
+  align-items:center; gap:2px; padding:1px 4px;
+  border-bottom:1px solid var(--border-dim);
+  cursor:default;
+}
+.per-row:hover { background:rgba(255,255,255,.03); }
+.per-name { font-size:.8rem; line-height:1.2; }
+.per-name .attr-tag { font-size:.58rem; color:var(--text-dim); }
+.per-name.so-trei { color:var(--text-dim); }
+.per-total {
+  font-family:'Cinzel',serif; font-size:.9rem; font-weight:600; color:var(--gold);
+  text-align:center;
+  /* Clicável */
+  cursor:pointer; border-radius:3px; transition:background .15s;
+  padding:1px 3px;
+}
+.per-total:hover { background:rgba(201,168,76,.18); color:#ffe080; }
+.per-total.treinado { color:var(--crimson-lt); }
+.per-total.treinado:hover { background:rgba(192,57,43,.18); color:#ff8070; }
+input.per-treinado { width:14px; height:14px; accent-color:var(--crimson); cursor:pointer; display:block; margin:auto; }
+.per-row input[type="number"] { font-size:.78rem; padding:1px 3px; text-align:center; }
+
+/* Rolagem overlay */
+#roll-log {
+  position:fixed; bottom:16px; right:16px; z-index:999;
+  display:flex; flex-direction:column-reverse; gap:6px;
+  pointer-events:none; max-width:260px;
+}
+.roll-card {
+  background:var(--bg-panel); border:1px solid var(--border);
+  border-radius:5px; padding:8px 12px;
+  font-family:'Crimson Text',serif;
+  animation: slideIn .2s ease;
+  pointer-events:auto;
+  position:relative;
+}
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.roll-card .rc-label { font-family:'Cinzel',serif; font-size:.62rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; }
+.roll-card .rc-result { font-family:'Cinzel',serif; font-size:1.6rem; font-weight:700; line-height:1; }
+.roll-card .rc-detail { font-size:.78rem; color:var(--text-dim); }
+.roll-card.critico { border-color:var(--gold); }
+.roll-card.critico .rc-result { color:var(--gold); }
+.roll-card.fumble  { border-color:var(--crimson); }
+.roll-card.fumble  .rc-result { color:#ff6b6b; }
+.rc-close { position:absolute; top:4px; right:6px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:.8rem; padding:0; }
+
+@media (max-width:680px) {
+  .ficha-layout { grid-template-columns:1fr; }
+  .attr-grid { grid-template-columns:repeat(3,1fr); }
+  .rec-def-row { grid-template-columns:1fr 1fr; }
+  .rec-def-row .def-box { grid-column:span 2; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <div class="tormenta-logo">TORMENTA 20</div>
+    <div class="sub-title">Ficha de Personagem</div>
+  </div>
+  <div class="actions">
+    <span id="save-status">—</span>
+    <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+    <button class="btn btn-ghost" onclick="window.close()">✕</button>
+  </div>
+</div>
+
+<div class="ficha-layout">
+
+<!-- ═══════════════════════ COLUNA PRINCIPAL ═══════════════════════ -->
+<div class="col-main">
+
+  <!-- Identidade -->
+  <div class="info-grid-5">
+    <div class="field" style="grid-column:span 2">
+      <label>Personagem</label>
+      <input type="text" id="nome" placeholder="Nome do personagem">
+    </div>
+    <div class="field">
+      <label>Jogador(a)</label>
+      <input type="text" id="jogador" placeholder="Jogador">
+    </div>
+    <div class="field">
+      <label>Nível</label>
+      <input type="number" id="nivel" value="1" min="1" max="20" oninput="onNivelChange()">
+    </div>
+    <div class="field">
+      <label>Divindade</label>
+      <input type="text" id="divindade" placeholder="—">
+    </div>
+  </div>
+  <div class="info-grid-3">
+    <div class="field">
+      <label>Raça</label>
+      <input type="text" id="raca" placeholder="Raça">
+    </div>
+    <div class="field">
+      <label>Origem</label>
+      <input type="text" id="origem" placeholder="Origem">
+    </div>
+    <div class="field">
+      <label>Classe</label>
+      <input type="text" id="classe" placeholder="Classe">
+    </div>
+  </div>
+
+  <!-- Atributos -->
+  <div class="section-title">Atributos
+    <span style="font-family:'Crimson Text',serif;font-size:.7rem;color:var(--text-dim);font-weight:normal;text-transform:none;letter-spacing:0">
+      — em T20 JdA o valor <em>já é</em> o modificador (FOR 4 = bônus +4)
+    </span>
+  </div>
+  <div class="attr-grid" id="attr-grid"></div>
+
+  <!-- Recursos + Defesa -->
+  <div class="section-title">Pontos de Vida, Mana & Defesa</div>
+  <div class="rec-def-row">
+    <div class="rec-box">
+      <div class="rec-name pv">Pontos de Vida</div>
+      <div class="rec-inline">
+        <div class="field" style="flex:1"><label>Atuais</label>
+          <input type="number" id="pv_atual" placeholder="0" oninput="updateBar('pv')">
+        </div>
+        <span>/</span>
+        <div class="field" style="flex:1"><label>Máx.</label>
+          <input type="number" id="pv_max"   placeholder="0" oninput="updateBar('pv')">
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill bar-pv" id="bar-pv" style="width:100%"></div></div>
+    </div>
+    <div class="rec-box">
+      <div class="rec-name pm">Pontos de Mana</div>
+      <div class="rec-inline">
+        <div class="field" style="flex:1"><label>Atuais</label>
+          <input type="number" id="pm_atual" placeholder="0" oninput="updateBar('pm')">
+        </div>
+        <span>/</span>
+        <div class="field" style="flex:1"><label>Máx.</label>
+          <input type="number" id="pm_max"   placeholder="0" oninput="updateBar('pm')">
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill bar-pm" id="bar-pm" style="width:100%"></div></div>
+    </div>
+    <div class="def-box">
+      <div class="def-lbl">DEFESA</div>
+      <div class="def-total" id="def-total">10</div>
+      <div style="font-size:.62rem;color:var(--text-dim);margin:2px 0 4px">10 + DES + armadura + escudo</div>
+      <div class="def-parts">
+        <div class="def-part"><label>DES</label><div class="dv" id="def-des">+0</div></div>
+        <div class="def-part field"><label>Armadura</label>
+          <input type="number" id="def_arm" value="0" oninput="calcDefesa()">
+        </div>
+        <div class="def-part field"><label>Escudo</label>
+          <input type="number" id="def_esc" value="0" oninput="calcDefesa()">
+        </div>
+        <div class="def-part field"><label>Outros</label>
+          <input type="number" id="def_out" value="0" oninput="calcDefesa()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Armadura & Escudo -->
+  <div class="section-title">Armadura & Escudo</div>
+  <div id="armor-list" style="margin-bottom:5px">
+    <div class="arm-row hdr"><span>Item</span><span>Bônus</span><span>Penalidade</span><span></span></div>
+  </div>
+  <button class="btn btn-ghost" onclick="addArmorRow()">+ Item</button>
+
+  <!-- Ataques -->
+  <div class="section-title">Ataques
+    <span style="font-family:'Crimson Text',serif;font-size:.7rem;color:var(--text-dim);font-weight:normal;text-transform:none;letter-spacing:0">
+      — clique no bônus para rolar ataque; clique no dano para rolar dano
+    </span>
+  </div>
+  <div style="overflow-x:auto;margin-bottom:6px">
+    <table class="t20-table">
+      <thead>
+        <tr>
+          <th>Ataque</th><th>Bônus</th><th>Dano</th><th>Crítico</th><th>Tipo</th><th>Alcance</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="atq-body"></tbody>
+    </table>
+  </div>
+  <button class="btn btn-ghost" onclick="addAtaqueRow()">+ Ataque</button>
+
+  <!-- Habilidades & Magias -->
+  <div class="section-title">Habilidades & Magias</div>
+  <div class="hab-2col" id="hab-a"></div>
+  <div class="hab-2col" id="hab-b" style="margin-top:6px"></div>
+  <div style="margin-top:6px;display:flex;gap:6px">
+    <button class="btn btn-ghost" onclick="addHab()">+ Habilidade / Magia</button>
+  </div>
+
+  <!-- Proficiências -->
+  <div class="section-title">Proficiências & Outras Características</div>
+  <div class="prof-box"><textarea id="proficiencias" placeholder="Proficiências, idiomas, características especiais…"></textarea></div>
+
+  <!-- Equipamento -->
+  <div class="section-title">Equipamento</div>
+  <div class="prof-box"><textarea id="equipamento" style="min-height:70px" placeholder="Itens, armas, armaduras carregadas…"></textarea></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:5px">
+    <div class="field"><label>T$ (Tibares)</label><input type="text" id="tibares" placeholder="0 T$"></div>
+    <div class="field"><label>Carga Total</label><input type="text" id="carga" placeholder="0 kg"></div>
+  </div>
+
+  <!-- Notas -->
+  <div class="section-title">Notas / História</div>
+  <div class="prof-box"><textarea id="notas" style="min-height:80px" placeholder="Personalidade, história, anotações da sessão…"></textarea></div>
+
+</div><!-- /col-main -->
+
+<!-- ═══════════════════════ COLUNA PERÍCIAS ═══════════════════════ -->
+<div class="col-pericias">
+  <div style="font-family:'Cinzel',serif;font-size:.7rem;color:var(--crimson);font-weight:700;letter-spacing:.1em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">
+    PERÍCIAS
+    <span style="font-family:'Crimson Text',serif;font-size:.65rem;color:var(--text-dim);text-transform:none;font-weight:normal;letter-spacing:0">— clique no total para rolar</span>
+  </div>
+
+  <div class="per-hdr">
+    <span>Perícia (atrib.)</span>
+    <span style="text-align:center">Total</span>
+    <span style="text-align:center">T</span>
+    <span style="text-align:center">Extra</span>
+    <span style="text-align:center">Out.</span>
+  </div>
+
+  <div id="per-list"></div>
+
+  <div style="margin-top:10px;border-top:1px solid var(--border-dim);padding-top:8px">
+    <div class="field">
+      <label style="font-family:'Cinzel',serif;font-size:.6rem;color:var(--text-dim)">Pen. de Armadura (negativo)</label>
+      <input type="number" id="pen_arm" value="0" oninput="recalcPericias()" style="max-width:70px">
+    </div>
+    <div style="margin-top:6px;font-size:.7rem;color:var(--text-dim);line-height:1.5">
+      <strong style="color:var(--gold-dim)">Fórmula T20 JdA:</strong><br>
+      ½ nível + atributo + treino<br>
+      Treino: <span id="treino-val" style="color:var(--gold)">+2</span> (nív. 1–6), +4 (7–14), +6 (15+)
+    </div>
+  </div>
+</div>
+
+</div><!-- /ficha-layout -->
+
+<!-- Rolagem overlay -->
+<div id="roll-log"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@1.10.0/dist/bundle.js"></script>
+<script src="../js/t20.js"></script>
+<script>
+/* ═══════════════ STATE ═══════════════ */
+let fichaId = T20.getParam('id');
+let saveTimer = null;
+let habCount  = 0;
+
+const ATRIBS = ['FOR','DES','CON','INT','SAB','CAR'];
+
+/* ═══════════════ INIT ═══════════════ */
+T20.onReady(async () => {
+  buildAtribs();
+  buildPericias();
+  buildDefaultAtaques();
+  buildDefaultArmor();
+
+  if (fichaId) {
+    const d = await T20.getFicha(fichaId);
+    if (d) loadFicha(d);
+  }
+
+  document.querySelectorAll('input,textarea').forEach(el =>
+    el.addEventListener('input', scheduleSave)
+  );
+
+  // Escuta rolagens de outros jogadores
+  T20.onRoll(msg => showRollCard(msg));
+
+  setStatus('—');
+});
+
+/* ═══════════════ ATRIBUTOS ═══════════════ */
+function buildAtribs() {
+  const g = document.getElementById('attr-grid');
+  g.innerHTML = ATRIBS.map(a => `
+    <div class="attr-box">
+      <div class="an">${a}</div>
+      <input type="number" id="a_${a}" value="0" min="-5" max="15" oninput="onAtribChange()">
+      <div class="am">bônus direto</div>
+    </div>`).join('');
+}
+
+function onAtribChange() {
+  // Mostrar valor no topo (não há "mod" separado em T20 JdA — o valor É o mod)
+  calcDefesa();
+  recalcPericias();
+  scheduleSave();
+}
+
+/* ═══════════════ DEFESA ═══════════════ */
+function calcDefesa() {
+  const des = parseInt(document.getElementById('a_DES')?.value) || 0;
+  const arm = parseInt(document.getElementById('def_arm')?.value) || 0;
+  const esc = parseInt(document.getElementById('def_esc')?.value) || 0;
+  const out = parseInt(document.getElementById('def_out')?.value) || 0;
+  document.getElementById('def-total').textContent = 10 + des + arm + esc + out;
+  document.getElementById('def-des').textContent   = T20.sinal(des);
+}
+
+/* ═══════════════ BARRAS ═══════════════ */
+function updateBar(tipo) {
+  const atual = parseInt(document.getElementById(`${tipo}_atual`)?.value) || 0;
+  const max   = parseInt(document.getElementById(`${tipo}_max`)?.value)   || 1;
+  const pct   = Math.max(0, Math.min(100, (atual/max)*100));
+  const el = document.getElementById(`bar-${tipo}`);
+  if (el) el.style.width = pct + '%';
+}
+
+/* ═══════════════ PERÍCIAS ═══════════════ */
+function buildPericias() {
+  const list = document.getElementById('per-list');
+  list.innerHTML = T20.PERICIAS.map((p, i) => {
+    const id = `p${i}`;
+    const cls = p.treinado ? ' so-trei' : '';
+    const tags = [
+      p.armadura ? '✠' : '',
+      p.treinado ? '✯' : '',
+    ].filter(Boolean).join('');
+    return `<div class="per-row" id="row_${id}">
+      <div class="per-name${cls}">
+        ${p.nome}${p.custom?' (___)':''}
+        <span class="attr-tag">${p.attr}${tags}</span>
+      </div>
+      <div class="per-total" id="tot_${id}" onclick="rolarPericia(${i})" title="Clique para rolar ${p.nome}">—</div>
+      <div><input type="checkbox" class="per-treinado" id="tr_${id}" onchange="recalcPericia(${i})"></div>
+      <div><input type="number" id="ex_${id}" value="0" placeholder="0" oninput="recalcPericia(${i})" title="Bônus extra de treinamento"></div>
+      <div><input type="number" id="ou_${id}" value="0" placeholder="0" oninput="recalcPericia(${i})" title="Outros bônus/penalidades"></div>
+    </div>`;
+  }).join('');
+}
+
+function onNivelChange() {
+  const n = parseInt(document.getElementById('nivel')?.value) || 1;
+  document.getElementById('treino-val').textContent = '+' + T20.bonusTreino(n);
+  recalcPericias();
+  scheduleSave();
+}
+
+function recalcPericias() {
+  T20.PERICIAS.forEach((_, i) => recalcPericia(i));
+}
+
+function recalcPericia(i) {
+  const p   = T20.PERICIAS[i];
+  const id  = `p${i}`;
+  const nivel   = parseInt(document.getElementById('nivel')?.value) || 1;
+  const attr    = parseInt(document.getElementById(`a_${p.attr}`)?.value) || 0;
+  const treinado= document.getElementById(`tr_${id}`)?.checked || false;
+  const extra   = parseInt(document.getElementById(`ex_${id}`)?.value) || 0;
+  const outros  = parseInt(document.getElementById(`ou_${id}`)?.value) || 0;
+  const penArm  = p.armadura ? (parseInt(document.getElementById('pen_arm')?.value) || 0) : 0;
+
+  const total = T20.calcPericia({ nivel, attrValue: attr, treinado, treino_extra: extra, outros, penArm });
+
+  const el = document.getElementById(`tot_${id}`);
+  if (el) {
+    el.textContent = T20.sinal(total);
+    el.className   = 'per-total' + (treinado ? ' treinado' : '');
+    el.title       = `Clique para rolar ${p.nome} (d20 ${T20.sinal(total)})`;
+  }
+}
+
+/* ═══════════════ ROLAR PERÍCIA ═══════════════ */
+async function rolarPericia(i) {
+  const p   = T20.PERICIAS[i];
+  const id  = `p${i}`;
+  const nivel   = parseInt(document.getElementById('nivel')?.value) || 1;
+  const attr    = parseInt(document.getElementById(`a_${p.attr}`)?.value) || 0;
+  const treinado= document.getElementById(`tr_${id}`)?.checked || false;
+  const extra   = parseInt(document.getElementById(`ex_${id}`)?.value) || 0;
+  const outros  = parseInt(document.getElementById(`ou_${id}`)?.value) || 0;
+  const penArm  = p.armadura ? (parseInt(document.getElementById('pen_arm')?.value) || 0) : 0;
+  const valor   = T20.calcPericia({ nivel, attrValue: attr, treinado, treino_extra: extra, outros, penArm });
+
+  const personagem = document.getElementById('nome')?.value || '';
+  const resultado  = await T20.rolar({ label: p.nome, valor, tipo: 'pericia', personagem });
+  showRollCard({ label: p.nome, ...resultado, personagem });
+}
+
+/* ═══════════════ ATAQUES ═══════════════ */
+function buildDefaultAtaques() {
+  if (!document.getElementById('atq-body').children.length) {
+    for (let i=0;i<3;i++) addAtaqueRow();
+  }
+}
+
+function addAtaqueRow(d = {}) {
+  const tb = document.getElementById('atq-body');
+  const tr = document.createElement('tr');
+  const idx = tb.children.length;
+  tr.innerHTML = `
+    <td><input type="text" value="${d.nome||''}" placeholder="Espada longa"></td>
+    <td><input type="text" class="atq-bon" value="${d.bonus||''}" placeholder="+5"
+         onclick="rolarAtaque(this)" style="cursor:pointer;color:var(--gold)" title="Clique para rolar ataque"></td>
+    <td><input type="text" class="atq-dano" value="${d.dano||''}" placeholder="1d8+3"
+         onclick="rolarDanoAtq(this)" style="cursor:pointer;color:var(--crimson-lt)" title="Clique para rolar dano"></td>
+    <td><input type="text" value="${d.critico||''}" placeholder="20/×2"></td>
+    <td><input type="text" value="${d.tipo||''}" placeholder="Cortante"></td>
+    <td><input type="text" value="${d.alcance||''}" placeholder="Curto"></td>
+    <td><button class="btn-remove" onclick="this.closest('tr').remove();scheduleSave()">✕</button></td>`;
+  tr.querySelectorAll('input').forEach(el => el.addEventListener('input', scheduleSave));
+  // Prevent click-to-roll from also triggering input save when editing
+  tr.querySelectorAll('.atq-bon,.atq-dano').forEach(el => {
+    el.addEventListener('click', e => e.stopPropagation(), true);
+  });
+  tb.appendChild(tr);
+}
+
+async function rolarAtaque(el) {
+  // Só rola se não está em edição (não mudou recentemente)
+  const txt   = el.value.trim();
+  const bonus = parseInt(txt.replace(/[^0-9+-]/g,'')) || 0;
+  const nome  = el.closest('tr').querySelector('input')?.value || 'Ataque';
+  const personagem = document.getElementById('nome')?.value || '';
+  const res = await T20.rolar({ label: nome, valor: bonus, tipo: 'ataque', personagem });
+  showRollCard({ label: `Ataque: ${nome}`, ...res, personagem });
+}
+
+async function rolarDanoAtq(el) {
+  const expr = el.value.trim();
+  if (!expr) return;
+  const nome = el.closest('tr').querySelector('input')?.value || 'Ataque';
+  const personagem = document.getElementById('nome')?.value || '';
+  const res = await T20.rolarDano({ label: `Dano: ${nome}`, expr, personagem });
+  showRollCard({ label: `Dano: ${nome}`, total: res.total, partes: res.partes, tipo: 'dano', personagem, isDano: true });
+}
+
+/* ═══════════════ ARMADURA ═══════════════ */
+function buildDefaultArmor() {
+  if (!document.querySelector('#armor-list .arm-row:not(.hdr)')) {
+    for (let i=0;i<2;i++) addArmorRow();
+  }
+}
+
+function addArmorRow(d = {}) {
+  const list = document.getElementById('armor-list');
+  const div  = document.createElement('div');
+  div.className = 'arm-row';
+  div.innerHTML = `
+    <input type="text"   value="${d.nome||''}"  placeholder="Armadura de couro">
+    <input type="number" value="${d.bonus||''}" placeholder="0">
+    <input type="number" value="${d.pen||''}"   placeholder="0">
+    <button class="btn-remove" onclick="this.closest('.arm-row').remove();scheduleSave()">✕</button>`;
+  div.querySelectorAll('input').forEach(el => el.addEventListener('input', scheduleSave));
+  list.appendChild(div);
+}
+
+/* ═══════════════ HABILIDADES ═══════════════ */
+function addHab(d = {}) {
+  const id  = habCount++;
+  const col = id % 2 === 0 ? 'a' : 'b';
+  const container = document.getElementById(`hab-${col}`);
+  const div = document.createElement('div');
+  div.className = 'hab-entry';
+  div.id = `h_${id}`;
+  div.innerHTML = `
+    <div class="hab-row">
+      <input class="hn" type="text" value="${d.nome||''}" placeholder="Nome da habilidade">
+      <button class="btn-remove" onclick="document.getElementById('h_${id}').remove();scheduleSave()">✕</button>
+    </div>
+    <textarea class="hd" placeholder="Descrição, efeito, custo de PM…">${d.desc||''}</textarea>`;
+  div.querySelectorAll('input,textarea').forEach(el => el.addEventListener('input', scheduleSave));
+  container.appendChild(div);
+}
+
+/* ═══════════════ ROLAGEM VISUAL ═══════════════ */
+function showRollCard(msg) {
+  const log  = document.getElementById('roll-log');
+  const card = document.createElement('div');
+
+  let cls = 'roll-card';
+  let resultHTML = '';
+  const personagem = msg.personagem ? `<span style="color:var(--gold-dim)">${msg.personagem}</span> — ` : '';
+
+  if (msg.isDano || msg.tipo === 'dano') {
+    cls += '';
+    resultHTML = `
+      <div class="rc-label">${personagem}${msg.label}</div>
+      <div class="rc-result" style="color:var(--crimson-lt)">${msg.total}</div>
+      <div class="rc-detail">${msg.expr || (msg.partes||[]).join(' ')} = ${msg.total}</div>`;
+  } else {
+    if (msg.critico) cls += ' critico';
+    if (msg.fumble)  cls += ' fumble';
+    const emoji = msg.critico ? '🎯 CRÍTICO! ' : msg.fumble ? '💀 FUMBLE! ' : '';
+    resultHTML = `
+      <div class="rc-label">${personagem}${msg.label}</div>
+      <div class="rc-result">${emoji}${msg.total}</div>
+      <div class="rc-detail">d20(${msg.d20}) ${T20.sinal(msg.modificador||0)} = ${msg.total}</div>`;
+  }
+
+  card.className = cls;
+  card.innerHTML = resultHTML + `<button class="rc-close" onclick="this.parentElement.remove()">✕</button>`;
+  log.appendChild(card);
+
+  // Auto-remover após 8s
+  setTimeout(() => card.remove(), 8000);
+
+  // Máximo 5 cards
+  while (log.children.length > 5) log.firstChild.remove();
+}
+
+/* ═══════════════ LOAD / SAVE ═══════════════ */
+function loadFicha(d) {
+  const set = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el || v == null) return;
+    if (el.type === 'checkbox') el.checked = !!v;
+    else el.value = v;
+  };
+
+  ['nome','jogador','nivel','raca','origem','classe','divindade'].forEach(k => set(k, d[k]));
+  ATRIBS.forEach(a => set(`a_${a}`, d[`a_${a}`] ?? 0));
+  ['def_arm','def_esc','def_out'].forEach(k => set(k, d[k]));
+  ['pv_atual','pv_max','pm_atual','pm_max'].forEach(k => set(k, d[k]));
+  set('pen_arm', d.pen_arm);
+
+  // Perícias
+  T20.PERICIAS.forEach((_, i) => {
+    const id = `p${i}`;
+    set(`tr_${id}`, d[`tr_${id}`]);
+    set(`ex_${id}`, d[`ex_${id}`]);
+    set(`ou_${id}`, d[`ou_${id}`]);
+  });
+
+  // Ataques
+  if (d.ataques?.length) {
+    document.getElementById('atq-body').innerHTML = '';
+    d.ataques.forEach(a => addAtaqueRow(a));
+  }
+
+  // Armadura
+  if (d.armaduras?.length) {
+    const list = document.getElementById('armor-list');
+    // Remover linhas não-header
+    list.querySelectorAll('.arm-row:not(.hdr)').forEach(r => r.remove());
+    d.armaduras.forEach(a => addArmorRow(a));
+  }
+
+  // Habilidades
+  if (d.habilidades?.length) {
+    habCount = 0;
+    document.getElementById('hab-a').innerHTML = '';
+    document.getElementById('hab-b').innerHTML = '';
+    d.habilidades.forEach(h => addHab(h));
+  }
+
+  ['proficiencias','equipamento','tibares','carga','notas'].forEach(k => set(k, d[k]));
+
+  onNivelChange();
+  onAtribChange();
+  updateBar('pv');
+  updateBar('pm');
+}
+
+function collectFicha() {
+  const v  = id => document.getElementById(id)?.value ?? '';
+  const ck = id => document.getElementById(id)?.checked ?? false;
+  const d  = { tipo: 'personagem' };
+
+  ['nome','jogador','nivel','raca','origem','classe','divindade'].forEach(k => d[k] = v(k));
+  ATRIBS.forEach(a => d[`a_${a}`] = v(`a_${a}`));
+  ['def_arm','def_esc','def_out'].forEach(k => d[k] = v(k));
+  ['pv_atual','pv_max','pm_atual','pm_max'].forEach(k => d[k] = v(k));
+  d.pen_arm = v('pen_arm');
+
+  T20.PERICIAS.forEach((_, i) => {
+    const id = `p${i}`;
+    d[`tr_${id}`] = ck(`tr_${id}`);
+    d[`ex_${id}`] = v(`ex_${id}`);
+    d[`ou_${id}`] = v(`ou_${id}`);
+  });
+
+  d.ataques = Array.from(document.querySelectorAll('#atq-body tr')).map(tr => {
+    const ins = tr.querySelectorAll('input');
+    return { nome: ins[0]?.value, bonus: ins[1]?.value, dano: ins[2]?.value,
+             critico: ins[3]?.value, tipo: ins[4]?.value, alcance: ins[5]?.value };
+  });
+
+  d.armaduras = Array.from(document.querySelectorAll('#armor-list .arm-row:not(.hdr)')).map(r => {
+    const ins = r.querySelectorAll('input');
+    return { nome: ins[0]?.value, bonus: ins[1]?.value, pen: ins[2]?.value };
+  });
+
+  d.habilidades = [];
+  ['a','b'].forEach(col => {
+    document.querySelectorAll(`#hab-${col} .hab-entry`).forEach(el => {
+      d.habilidades.push({ nome: el.querySelector('.hn')?.value||'', desc: el.querySelector('.hd')?.value||'' });
+    });
+  });
+
+  ['proficiencias','equipamento','tibares','carga','notas'].forEach(k => d[k] = v(k));
+  return d;
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  setStatus('saving','Salvando…');
+  saveTimer = setTimeout(salvar, 1400);
+}
+
+async function salvar() {
+  clearTimeout(saveTimer);
+  setStatus('saving','Salvando…');
+  if (!fichaId) fichaId = T20.uuid();
+  const ok = await T20.saveFicha(fichaId, collectFicha());
+  setStatus(ok ? 'saved' : 'error', ok ? '✓ Salvo' : '✕ Erro');
+}
+
+function setStatus(cls, txt) {
+  const el = document.getElementById('save-status');
+  el.className  = cls || '';
+  el.textContent = txt || '';
+}
+</script>
+</body>
+</html>

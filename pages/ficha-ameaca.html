@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Ameaça — Tormenta 20</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.ameaca-layout { display:grid; grid-template-columns:1fr 1fr; min-height:calc(100vh - 54px); }
+.col-l { padding:14px 16px; overflow-y:auto; border-right:1px solid var(--border-dim); }
+.col-r { padding:14px 14px; overflow-y:auto; background:var(--bg-panel); }
+
+/* ND + nome */
+.ameaca-top { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:start; margin-bottom:10px; }
+.nd-block {
+  background:var(--bg-panel); border:2px solid var(--crimson);
+  border-radius:6px; padding:8px 14px; text-align:center; min-width:88px;
+}
+.nd-block .ndl { font-family:'Cinzel',serif; font-size:.58rem; color:var(--text-dim); letter-spacing:.1em; }
+.nd-block input {
+  font-family:'Cinzel',serif; font-size:2.2rem; font-weight:700;
+  color:var(--crimson); background:transparent; border:none;
+  text-align:center; width:80px; display:block; margin:0 auto;
+}
+.nd-block input:focus { outline:none; }
+
+/* Stat boxes */
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:8px; }
+.sbox {
+  background:var(--bg-input); border:1px solid var(--border);
+  border-radius:4px; padding:5px 6px; text-align:center;
+}
+.sbox label { font-family:'Cinzel',serif; font-size:.58rem; color:var(--crimson); letter-spacing:.06em; display:block; margin-bottom:2px; }
+.sbox input {
+  font-family:'Cinzel',serif; font-size:1.15rem; font-weight:700;
+  background:transparent; border:none; border-bottom:1px solid var(--border-dim);
+  color:var(--text-main); width:100%; text-align:center; padding:1px 0;
+  cursor:pointer;
+}
+.sbox input:focus { outline:none; border-color:var(--crimson); cursor:text; }
+.sbox .roll-hint { font-size:.52rem; color:var(--text-dim); margin-top:1px; }
+
+/* Atributos compactos */
+.attr-compact { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-bottom:8px; }
+.ac {
+  background:var(--bg-panel); border:1px solid var(--border-dim);
+  border-radius:3px; text-align:center; padding:4px 2px;
+}
+.ac .acn { font-family:'Cinzel',serif; font-size:.55rem; color:var(--crimson); }
+.ac input {
+  background:transparent; border:none; border-bottom:1px solid var(--border-dim);
+  color:var(--text-main); font-family:'Cinzel',serif; font-size:1rem;
+  text-align:center; width:100%; padding:1px 0;
+}
+.ac input:focus { outline:none; border-color:var(--crimson); }
+
+/* PV bar */
+.pv-block {
+  background:var(--bg-input); border:1px solid var(--border);
+  border-radius:4px; padding:8px 10px; margin-bottom:8px;
+}
+.pv-name { font-family:'Cinzel',serif; font-size:.65rem; font-weight:700; color:var(--crimson); letter-spacing:.08em; }
+.pv-inline { display:flex; gap:5px; align-items:center; margin-top:4px; }
+.pv-inline span { color:var(--text-dim); }
+.pv-inline input { font-size:1rem; text-align:center; }
+
+/* Resistências box */
+.rbox { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:6px 8px; margin-bottom:8px; }
+.rbox label { font-family:'Cinzel',serif; font-size:.58rem; color:var(--gold); display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:.06em; }
+.rbox textarea { background:transparent; border:none; resize:none; width:100%; min-height:36px; font-size:.82rem; color:var(--text-main); }
+.rbox textarea:focus { outline:none; }
+
+/* Ataque rows */
+.atq-blk { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:6px 8px; margin-bottom:6px; }
+.atq-blk-title { font-family:'Cinzel',serif; font-size:.62rem; font-weight:700; color:var(--crimson); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+.atq-sub3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-top:4px; }
+.atq-sub3 .field label { font-size:.55rem; }
+
+/* Perícias ameaça */
+.per-ameaca { display:flex; align-items:center; gap:5px; padding:2px 0; border-bottom:1px solid var(--border-dim); }
+.per-ameaca:last-child { border-bottom:none; }
+.per-ameaca .pa-nome { font-size:.82rem; flex:1; }
+.per-ameaca .pa-val {
+  font-family:'Cinzel',serif; font-size:.9rem; font-weight:600; color:var(--gold);
+  cursor:pointer; padding:1px 4px; border-radius:2px; min-width:36px; text-align:center;
+}
+.per-ameaca .pa-val:hover { background:rgba(201,168,76,.15); }
+.per-ameaca input[type="text"] { font-size:.8rem; }
+
+/* Habilidades especiais */
+.he-item { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:6px 8px; margin-bottom:5px; }
+.he-hdr  { display:flex; align-items:center; gap:5px; margin-bottom:3px; }
+.he-item input.he-nome {
+  background:transparent; border:none; border-bottom:1px solid var(--border-dim);
+  color:var(--crimson-lt); font-weight:600; font-style:italic; font-size:.88rem; flex:1; padding:1px 0;
+}
+.he-item input.he-tipo {
+  background:var(--bg-panel); border:1px solid var(--border-dim);
+  border-radius:2px; color:var(--text-dim); font-size:.7rem; padding:1px 5px; width:90px;
+}
+.he-item textarea { background:transparent; border:none; resize:none; width:100%; min-height:40px; font-size:.8rem; color:var(--text-main); line-height:1.4; }
+.he-item input:focus, .he-item textarea:focus { outline:none; }
+
+/* Tesouro / notas */
+.tbox { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:6px 8px; }
+.tbox textarea { background:transparent; border:none; resize:none; width:100%; min-height:60px; font-size:.82rem; color:var(--text-main); }
+.tbox textarea:focus { outline:none; }
+
+/* Roll overlay */
+#roll-log { position:fixed; bottom:14px; right:14px; z-index:999; display:flex; flex-direction:column-reverse; gap:5px; pointer-events:none; max-width:240px; }
+.roll-card { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; padding:7px 10px; font-family:'Crimson Text',serif; animation:slideIn .2s; pointer-events:auto; position:relative; }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.roll-card .rcl { font-family:'Cinzel',serif; font-size:.58rem; color:var(--text-dim); text-transform:uppercase; }
+.roll-card .rcr { font-family:'Cinzel',serif; font-size:1.5rem; font-weight:700; line-height:1; }
+.roll-card .rcd { font-size:.75rem; color:var(--text-dim); }
+.roll-card.critico { border-color:var(--gold); }
+.roll-card.critico .rcr { color:var(--gold); }
+.roll-card.fumble  { border-color:var(--crimson); }
+.roll-card.fumble  .rcr { color:#ff6b6b; }
+.rc-close { position:absolute; top:3px; right:5px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:.75rem; }
+
+@media(max-width:680px) {
+  .ameaca-layout { grid-template-columns:1fr; }
+  .attr-compact  { grid-template-columns:repeat(3,1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="tormenta-logo">TORMENTA 20</div>
+    <div class="sub-title">Ficha de Ameaça</div>
+  </div>
+  <div class="actions">
+    <span id="save-status">—</span>
+    <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+    <button class="btn btn-ghost" onclick="window.close()">✕</button>
+  </div>
+</div>
+
+<div class="ameaca-layout">
+
+<!-- ═══════════════ ESQUERDA ═══════════════ -->
+<div class="col-l">
+
+  <!-- Nome + ND -->
+  <div class="ameaca-top">
+    <div>
+      <div class="field" style="margin-bottom:6px">
+        <label>Nome da Ameaça</label>
+        <input type="text" id="nome" placeholder="Ex: Duplo Fariell"
+               style="font-size:1.2rem;font-family:'Cinzel',serif;font-weight:700">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="field"><label>Tipo de Criatura</label>
+          <input type="text" id="tipo_criatura" placeholder="Humanoide">
+        </div>
+        <div class="field"><label>Tamanho (Papel)</label>
+          <input type="text" id="tamanho" placeholder="Médio">
+        </div>
+      </div>
+    </div>
+    <div class="nd-block">
+      <div class="ndl">ND</div>
+      <input type="number" id="nd" value="1" min="0" max="30">
+    </div>
+  </div>
+
+  <!-- Iniciativa / Percepção -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+    <div class="field">
+      <label>Iniciativa</label>
+      <input type="text" id="iniciativa" placeholder="+5"
+             onclick="rolarResistencia('Iniciativa','iniciativa')"
+             style="cursor:pointer;color:var(--gold)" title="Clique para rolar Iniciativa">
+    </div>
+    <div class="field">
+      <label>Percepção</label>
+      <input type="text" id="percepcao" placeholder="+3"
+             onclick="rolarResistencia('Percepção','percepcao')"
+             style="cursor:pointer;color:var(--gold)" title="Clique para rolar Percepção">
+    </div>
+  </div>
+  <div class="rbox" style="margin-bottom:8px">
+    <label>Sentidos / Percepção especial</label>
+    <textarea id="sentidos" placeholder="Visão no escuro 18m, olfato aguçado…"></textarea>
+  </div>
+
+  <!-- Defesa + Resistências -->
+  <div class="section-title">Defesa & Resistências</div>
+  <div class="stat-row">
+    <div class="sbox">
+      <label>Defesa</label>
+      <input type="text" id="defesa" placeholder="15" title="Só informativo">
+      <div class="roll-hint">valor fixo</div>
+    </div>
+    <div class="sbox">
+      <label>Fortitude</label>
+      <input type="text" id="fortitude" placeholder="+8"
+             onclick="rolarResistencia('Fortitude','fortitude')"
+             title="Clique para rolar Fortitude" style="cursor:pointer;color:var(--gold)">
+      <div class="roll-hint">clique → rolar</div>
+    </div>
+    <div class="sbox">
+      <label>Reflexos</label>
+      <input type="text" id="reflexos" placeholder="+4"
+             onclick="rolarResistencia('Reflexos','reflexos')"
+             title="Clique para rolar Reflexos" style="cursor:pointer;color:var(--gold)">
+      <div class="roll-hint">clique → rolar</div>
+    </div>
+    <div class="sbox">
+      <label>Vontade</label>
+      <input type="text" id="vontade" placeholder="+6"
+             onclick="rolarResistencia('Vontade','vontade')"
+             title="Clique para rolar Vontade" style="cursor:pointer;color:var(--gold)">
+      <div class="roll-hint">clique → rolar</div>
+    </div>
+  </div>
+
+  <div class="rbox">
+    <label>Resistências, Imunidades & Vulnerabilidades</label>
+    <textarea id="resistencias" placeholder="Ex: redução de dano 5/adamantina, imunidade a veneno, cura acelerada 5…"></textarea>
+  </div>
+
+  <!-- PV / PM -->
+  <div class="section-title">Pontos de Vida & Mana</div>
+  <div class="pv-block">
+    <div class="pv-name">Pontos de Vida</div>
+    <div class="pv-inline">
+      <div class="field" style="flex:1"><label>Atuais</label>
+        <input type="number" id="pv_atual" placeholder="0" oninput="updatePVBar()">
+      </div>
+      <span>/</span>
+      <div class="field" style="flex:1"><label>Máx.</label>
+        <input type="number" id="pv" placeholder="120" oninput="updatePVBar()">
+      </div>
+    </div>
+    <div style="background:var(--bg-deep);border-radius:3px;height:7px;overflow:hidden;margin-top:5px">
+      <div id="bar-pv" style="height:100%;border-radius:3px;background:linear-gradient(90deg,#7a1515,#c0392b);width:100%;transition:width .3s"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+    <div class="field"><label>Deslocamento</label>
+      <input type="text" id="deslocamento" placeholder="9m / 6q">
+    </div>
+    <div class="field"><label>Pontos de Mana</label>
+      <input type="text" id="pm" placeholder="0">
+    </div>
+  </div>
+
+  <!-- Ataques -->
+  <div class="section-title">Ataques
+    <span style="font-family:'Crimson Text',serif;font-size:.68rem;color:var(--text-dim);font-weight:normal;text-transform:none;letter-spacing:0">
+      — clique nos valores dourados para rolar
+    </span>
+  </div>
+
+  <!-- Corpo a corpo -->
+  <div class="atq-blk">
+    <div class="atq-blk-title">Corpo a Corpo</div>
+    <div class="field" style="margin-bottom:4px">
+      <label>Arma / Ataque</label>
+      <input type="text" id="cac_nome" placeholder="Ex: Garras ×2">
+    </div>
+    <div class="atq-sub3">
+      <div class="field"><label>Teste (clique→rola)</label>
+        <input type="text" id="cac_teste" placeholder="+10"
+               onclick="rolarAtqAmeaca('cac_nome','cac_teste')"
+               style="cursor:pointer;color:var(--gold)" title="Clique para rolar ataque">
+      </div>
+      <div class="field"><label>Dano (clique→rola)</label>
+        <input type="text" id="cac_dano" placeholder="2d6+5"
+               onclick="rolarDanoAmeaca('cac_nome','cac_dano')"
+               style="cursor:pointer;color:var(--crimson-lt)" title="Clique para rolar dano">
+      </div>
+      <div class="field"><label>Crítico</label>
+        <input type="text" id="cac_critico" placeholder="20/×2">
+      </div>
+    </div>
+  </div>
+
+  <!-- Distância -->
+  <div class="atq-blk">
+    <div class="atq-blk-title">Distância</div>
+    <div class="field" style="margin-bottom:4px">
+      <label>Arma / Ataque</label>
+      <input type="text" id="dist_nome" placeholder="Ex: Bola de Fogo">
+    </div>
+    <div class="atq-sub3">
+      <div class="field"><label>Teste / CD (clique→rola)</label>
+        <input type="text" id="dist_teste" placeholder="CD 18 ou +8"
+               onclick="rolarAtqAmeaca('dist_nome','dist_teste')"
+               style="cursor:pointer;color:var(--gold)" title="Clique para rolar ataque">
+      </div>
+      <div class="field"><label>Dano (clique→rola)</label>
+        <input type="text" id="dist_dano" placeholder="5d6"
+               onclick="rolarDanoAmeaca('dist_nome','dist_dano')"
+               style="cursor:pointer;color:var(--crimson-lt)" title="Clique para rolar dano">
+      </div>
+      <div class="field"><label>Alcance</label>
+        <input type="text" id="dist_alcance" placeholder="Longo">
+      </div>
+    </div>
+  </div>
+
+  <!-- Ataques extras -->
+  <div id="ataques-extras"></div>
+  <button class="btn btn-ghost" style="margin-top:3px" onclick="addAtqExtra()">+ Ataque</button>
+
+</div><!-- /col-l -->
+
+<!-- ═══════════════ DIREITA ═══════════════ -->
+<div class="col-r">
+
+  <!-- Atributos -->
+  <div class="section-title" style="margin-top:0">Atributos
+    <span style="font-family:'Crimson Text',serif;font-size:.65rem;color:var(--text-dim);font-weight:normal;text-transform:none;letter-spacing:0">— valor já é o bônus</span>
+  </div>
+  <div class="attr-compact" id="attr-compact"></div>
+
+  <!-- Perícias -->
+  <div class="section-title">Perícias
+    <span style="font-family:'Crimson Text',serif;font-size:.65rem;color:var(--text-dim);font-weight:normal;text-transform:none;letter-spacing:0">— clique no valor para rolar</span>
+  </div>
+  <div id="per-list-ameaca"></div>
+  <button class="btn btn-ghost" style="margin-top:4px" onclick="addPericia()">+ Perícia</button>
+
+  <!-- Habilidades Especiais -->
+  <div class="section-title" style="margin-top:12px">Habilidades Especiais</div>
+  <div id="he-list"></div>
+  <button class="btn btn-ghost" style="margin-top:3px" onclick="addHE()">+ Habilidade</button>
+
+  <!-- Equipamentos -->
+  <div class="section-title" style="margin-top:12px">Equipamentos</div>
+  <div class="tbox"><textarea id="equipamentos" placeholder="Armaduras, armas e itens que carrega…"></textarea></div>
+
+  <!-- Tesouro -->
+  <div class="section-title" style="margin-top:10px">Tesouro</div>
+  <div class="tbox"><textarea id="tesouro" placeholder="Tibares, itens e recompensas ao ser derrotada…"></textarea></div>
+
+  <!-- Táticas & Notas -->
+  <div class="section-title" style="margin-top:10px">Táticas & Notas</div>
+  <div class="tbox"><textarea id="notas" placeholder="Comportamento em combate, motivações, ganchos…"></textarea></div>
+
+</div><!-- /col-r -->
+</div><!-- /ameaca-layout -->
+
+<div id="roll-log"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@1.10.0/dist/bundle.js"></script>
+<script src="../js/t20.js"></script>
+<script>
+let fichaId = T20.getParam('id');
+let saveTimer = null;
+let perCount  = 0;
+let heCount   = 0;
+let atqXCount = 0;
+
+const ATRIBS = ['FOR','DES','CON','INT','SAB','CAR'];
+
+T20.onReady(async () => {
+  buildAtributos();
+  buildPerDefault();
+
+  if (fichaId) {
+    const d = await T20.getFicha(fichaId);
+    if (d) loadFicha(d);
+  }
+
+  document.querySelectorAll('input,textarea').forEach(el => el.addEventListener('input', scheduleSave));
+  // Evitar que cliques nos inputs de rolagem disparem save desnecessário
+  document.querySelectorAll('[onclick]').forEach(el => {
+    el.addEventListener('click', e => e.stopPropagation(), true);
+  });
+
+  T20.onRoll(msg => showRollCard(msg));
+  setStatus('—');
+});
+
+/* ─── Atributos ─── */
+function buildAtributos() {
+  const g = document.getElementById('attr-compact');
+  g.innerHTML = ATRIBS.map(a => `
+    <div class="ac">
+      <div class="acn">${a}</div>
+      <input type="number" id="a_${a}" value="0" min="-5" max="15" oninput="scheduleSave()">
+    </div>`).join('');
+}
+
+/* ─── PV bar ─── */
+function updatePVBar() {
+  const a = parseInt(document.getElementById('pv_atual')?.value)||0;
+  const m = parseInt(document.getElementById('pv')?.value)||1;
+  const el = document.getElementById('bar-pv');
+  if (el) el.style.width = Math.max(0,Math.min(100,(a/m)*100)) + '%';
+}
+
+/* ─── Rolar resistência / iniciativa ─── */
+async function rolarResistencia(label, fieldId) {
+  const txt = document.getElementById(fieldId)?.value?.trim() || '0';
+  const num = parseInt(txt.replace(/[^0-9+\-]/g,'')) || 0;
+  const nome = document.getElementById('nome')?.value || '';
+  const res = await T20.rolar({ label, valor: num, tipo: 'resistencia', personagem: nome });
+  showRollCard({ label, ...res, personagem: nome });
+}
+
+/* ─── Rolar ataque ameaça ─── */
+async function rolarAtqAmeaca(nomeFieldId, bonusFieldId) {
+  const nomeAtq = document.getElementById(nomeFieldId)?.value || 'Ataque';
+  const txt     = document.getElementById(bonusFieldId)?.value?.trim() || '0';
+  const bonus   = parseInt(txt.replace(/[^0-9+\-]/g,'')) || 0;
+  const nome    = document.getElementById('nome')?.value || '';
+  if (isNaN(bonus) || txt.startsWith('CD')) return; // CD é para o jogador rolar
+  const res = await T20.rolar({ label: nomeAtq, valor: bonus, tipo: 'ataque', personagem: nome });
+  showRollCard({ label: `Ataque: ${nomeAtq}`, ...res, personagem: nome });
+}
+
+async function rolarDanoAmeaca(nomeFieldId, danoFieldId) {
+  const nomeAtq = document.getElementById(nomeFieldId)?.value || 'Ataque';
+  const expr    = document.getElementById(danoFieldId)?.value?.trim() || '';
+  if (!expr) return;
+  const nome = document.getElementById('nome')?.value || '';
+  const res  = await T20.rolarDano({ label: `Dano: ${nomeAtq}`, expr, personagem: nome });
+  showRollCard({ label: `Dano: ${nomeAtq}`, total: res.total, partes: res.partes, tipo:'dano', personagem: nome, isDano: true });
+}
+
+/* ─── Perícias ─── */
+function buildPerDefault() {
+  ['Enganação','Intuição','Percepção'].forEach(n => addPericia({ nome: n, valor: '' }));
+}
+
+function addPericia(d = {}) {
+  const id  = perCount++;
+  const con = document.getElementById('per-list-ameaca');
+  const div = document.createElement('div');
+  div.className = 'per-ameaca';
+  div.id = `per_${id}`;
+  div.innerHTML = `
+    <input type="text" class="pa-nome" value="${d.nome||''}" placeholder="Perícia">
+    <input type="text" id="pav_${id}" value="${d.valor||''}" placeholder="+0"
+           style="display:none">
+    <div class="pa-val" id="pav-disp_${id}" onclick="rolarPerAmeaca(${id})" title="Clique para rolar">${d.valor||'—'}</div>
+    <button class="btn-remove" onclick="document.getElementById('per_${id}').remove();scheduleSave()">✕</button>`;
+
+  // Sync display ↔ input
+  div.querySelector('.pa-nome').addEventListener('input', scheduleSave);
+  const inp  = div.querySelector(`#pav_${id}`);
+  const disp = div.querySelector(`#pav-disp_${id}`);
+  // Double-click display to edit
+  disp.addEventListener('dblclick', () => {
+    disp.style.display = 'none';
+    inp.style.display  = '';
+    inp.focus();
+  });
+  inp.addEventListener('blur', () => {
+    disp.textContent = inp.value || '—';
+    inp.style.display  = 'none';
+    disp.style.display = '';
+    scheduleSave();
+  });
+  inp.addEventListener('input', scheduleSave);
+
+  con.appendChild(div);
+}
+
+async function rolarPerAmeaca(id) {
+  const val  = document.getElementById(`pav_${id}`)?.value?.trim() || '0';
+  const bonus= parseInt(val.replace(/[^0-9+\-]/g,'')) || 0;
+  const nome = document.querySelector(`#per_${id} .pa-nome`)?.value || 'Perícia';
+  const criatura = document.getElementById('nome')?.value || '';
+  const res = await T20.rolar({ label: nome, valor: bonus, tipo: 'pericia', personagem: criatura });
+  showRollCard({ label: nome, ...res, personagem: criatura });
+}
+
+/* ─── Habilidades especiais ─── */
+function addHE(d = {}) {
+  const id   = heCount++;
+  const list = document.getElementById('he-list');
+  const div  = document.createElement('div');
+  div.className = 'he-item';
+  div.id = `he_${id}`;
+  div.innerHTML = `
+    <div class="he-hdr">
+      <input class="he-nome" type="text" value="${d.nome||''}" placeholder="Nome da habilidade">
+      <input class="he-tipo" type="text" value="${d.tipo||''}" placeholder="(Padrão)">
+      <button class="btn-remove" onclick="document.getElementById('he_${id}').remove();scheduleSave()">✕</button>
+    </div>
+    <textarea placeholder="Descreva o efeito, CD, alcance, custo de PM…">${d.desc||''}</textarea>`;
+  div.querySelectorAll('input,textarea').forEach(el => el.addEventListener('input', scheduleSave));
+  list.appendChild(div);
+}
+
+/* ─── Ataques extras ─── */
+function addAtqExtra(d = {}) {
+  const id   = atqXCount++;
+  const cont = document.getElementById('ataques-extras');
+  const div  = document.createElement('div');
+  div.className = 'atq-blk';
+  div.id = `ax_${id}`;
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+      <input type="text" value="${d.tipo||''}" placeholder="Tipo (Ex: Especial)"
+             style="background:transparent;border:none;border-bottom:1px solid var(--border-dim);
+                    color:var(--crimson);font-family:'Cinzel',serif;font-size:.62rem;font-weight:700;
+                    text-transform:uppercase;letter-spacing:.05em;flex:1;padding:1px 0;">
+      <button class="btn-remove" onclick="document.getElementById('ax_${id}').remove();scheduleSave()">✕</button>
+    </div>
+    <div class="field" style="margin-bottom:4px">
+      <label>Ataque</label>
+      <input type="text" value="${d.nome||''}" placeholder="Nome">
+    </div>
+    <div class="atq-sub3">
+      <div class="field"><label>Teste (clique→rola)</label>
+        <input type="text" value="${d.teste||''}" placeholder="+8"
+               style="cursor:pointer;color:var(--gold)" title="Clique para rolar"
+               onclick="rolarAtqExtra(this)">
+      </div>
+      <div class="field"><label>Dano (clique→rola)</label>
+        <input type="text" value="${d.dano||''}" placeholder="2d8"
+               style="cursor:pointer;color:var(--crimson-lt)" title="Clique para rolar dano"
+               onclick="rolarDanoExtra(this)">
+      </div>
+      <div class="field"><label>Extra</label>
+        <input type="text" value="${d.extra||''}" placeholder="Tipo / Alcance">
+      </div>
+    </div>`;
+  div.querySelectorAll('input,textarea').forEach(el => el.addEventListener('input', scheduleSave));
+  cont.appendChild(div);
+}
+
+async function rolarAtqExtra(el) {
+  const bonus = parseInt(el.value.replace(/[^0-9+\-]/g,'')) || 0;
+  const nome  = el.closest('.atq-blk')?.querySelector('input')?.value || 'Ataque';
+  const criatura = document.getElementById('nome')?.value || '';
+  const res = await T20.rolar({ label: nome, valor: bonus, tipo: 'ataque', personagem: criatura });
+  showRollCard({ label: `Ataque: ${nome}`, ...res, personagem: criatura });
+}
+
+async function rolarDanoExtra(el) {
+  const expr = el.value.trim();
+  if (!expr) return;
+  const nome = el.closest('.atq-blk')?.querySelector('input')?.value || 'Ataque';
+  const criatura = document.getElementById('nome')?.value || '';
+  const res = await T20.rolarDano({ label: `Dano: ${nome}`, expr, personagem: criatura });
+  showRollCard({ label: `Dano: ${nome}`, total: res.total, tipo:'dano', personagem: criatura, isDano: true });
+}
+
+/* ─── Roll overlay ─── */
+function showRollCard(msg) {
+  const log  = document.getElementById('roll-log');
+  const card = document.createElement('div');
+  const pnome = msg.personagem ? `<span style="color:var(--gold-dim)">${msg.personagem}</span> — ` : '';
+
+  let cls = 'roll-card';
+  let html = '';
+
+  if (msg.isDano || msg.tipo === 'dano') {
+    html = `
+      <div class="rcl">${pnome}${msg.label}</div>
+      <div class="rcr" style="color:var(--crimson-lt)">${msg.total}</div>
+      <div class="rcd">${msg.expr||''} = ${msg.total}</div>`;
+  } else {
+    if (msg.critico) cls += ' critico';
+    if (msg.fumble)  cls += ' fumble';
+    const e = msg.critico ? '🎯 CRÍTICO! ' : msg.fumble ? '💀 FUMBLE! ' : '';
+    html = `
+      <div class="rcl">${pnome}${msg.label}</div>
+      <div class="rcr">${e}${msg.total}</div>
+      <div class="rcd">d20(${msg.d20}) ${T20.sinal(msg.modificador||0)} = ${msg.total}</div>`;
+  }
+
+  card.className = cls;
+  card.innerHTML = html + `<button class="rc-close" onclick="this.parentElement.remove()">✕</button>`;
+  log.appendChild(card);
+  setTimeout(() => card.remove(), 8000);
+  while (log.children.length > 5) log.firstChild.remove();
+}
+
+/* ─── Load / Save ─── */
+function loadFicha(d) {
+  const set = (id,v) => { const el=document.getElementById(id); if(el&&v!=null) el.value=v; };
+  const fields = ['nome','tipo_criatura','tamanho','nd','iniciativa','percepcao','sentidos',
+    'defesa','fortitude','reflexos','vontade','resistencias','pv','pv_atual','pm','deslocamento',
+    'cac_nome','cac_teste','cac_dano','cac_critico','dist_nome','dist_teste','dist_dano','dist_alcance',
+    'equipamentos','tesouro','notas'];
+  fields.forEach(k => set(k, d[k]));
+  ATRIBS.forEach(a => set(`a_${a}`, d[`a_${a}`] ?? 0));
+
+  if (d.pericias?.length) {
+    perCount = 0;
+    document.getElementById('per-list-ameaca').innerHTML = '';
+    d.pericias.forEach(p => addPericia(p));
+  }
+  if (d.habilidades?.length) {
+    heCount = 0;
+    document.getElementById('he-list').innerHTML = '';
+    d.habilidades.forEach(h => addHE(h));
+  }
+  if (d.ataques_extras?.length) {
+    atqXCount = 0;
+    document.getElementById('ataques-extras').innerHTML = '';
+    d.ataques_extras.forEach(a => addAtqExtra(a));
+  }
+
+  updatePVBar();
+}
+
+function collectFicha() {
+  const v = id => document.getElementById(id)?.value ?? '';
+  const d = { tipo: 'ameaca' };
+  ['nome','tipo_criatura','tamanho','nd','iniciativa','percepcao','sentidos',
+   'defesa','fortitude','reflexos','vontade','resistencias','pv','pv_atual','pm','deslocamento',
+   'cac_nome','cac_teste','cac_dano','cac_critico','dist_nome','dist_teste','dist_dano','dist_alcance',
+   'equipamentos','tesouro','notas'].forEach(k => d[k] = v(k));
+  ATRIBS.forEach(a => d[`a_${a}`] = v(`a_${a}`));
+
+  d.pericias = Array.from(document.querySelectorAll('#per-list-ameaca .per-ameaca')).map(el => ({
+    nome:  el.querySelector('.pa-nome')?.value || '',
+    valor: el.querySelector('input:last-of-type')?.value || '',
+  }));
+  d.habilidades = Array.from(document.querySelectorAll('#he-list .he-item')).map(el => ({
+    nome: el.querySelector('.he-nome')?.value || '',
+    tipo: el.querySelector('.he-tipo')?.value || '',
+    desc: el.querySelector('textarea')?.value  || '',
+  }));
+  d.ataques_extras = Array.from(document.querySelectorAll('#ataques-extras .atq-blk')).map(el => {
+    const ins = el.querySelectorAll('input[type="text"]');
+    return { tipo: ins[0]?.value, nome: ins[1]?.value, teste: ins[2]?.value, dano: ins[3]?.value, extra: ins[4]?.value };
+  });
+  return d;
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  setStatus('saving','Salvando…');
+  saveTimer = setTimeout(salvar, 1400);
+}
+
+async function salvar() {
+  clearTimeout(saveTimer);
+  setStatus('saving','Salvando…');
+  if (!fichaId) fichaId = T20.uuid();
+  const ok = await T20.saveFicha(fichaId, collectFicha());
+  setStatus(ok ? 'saved' : 'error', ok ? '✓ Salvo' : '✕ Erro');
+}
+
+function setStatus(cls, txt) {
+  const el = document.getElementById('save-status');
+  el.className = cls||''; el.textContent = txt||'';
+}
+</script>
+</body>
+</html>
