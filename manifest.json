@@ -1,0 +1,15 @@
+{
+  "name": "Tormenta 20 — Fichas",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "description": "Fichas de Personagem e Ameaça para Tormenta 20",
+  "icon": "https://brittog.github.io/tormenta20-obr/icon.svg",
+  "author": "Tormenta 20 OBR Plugin",
+  "action": {
+    "title": "Tormenta 20",
+    "icon": "https://brittog.github.io/tormenta20-obr/icon.svg",
+    "popover": "https://brittog.github.io/tormenta20-obr/pages/painel.html",
+    "width": 380,
+    "height": 600
+  }
+}
