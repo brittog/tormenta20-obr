@@ -3,236 +3,1055 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tormenta 20 — Fichas</title>
+<title>Tormenta 20</title>
 <link rel="stylesheet" href="../css/style.css">
+
 <style>
-body { font-size: 14px; }
-.painel-wrap { padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 100vh; }
-.painel-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--crimson);
-  margin-bottom: 4px;
-}
-.painel-logo {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--crimson);
-  flex: 1;
-}
-.painel-logo span { font-size: 0.7rem; color: var(--text-dim); display: block; font-weight: 400; letter-spacing: 0.05em; }
-.empty-state {
-  text-align: center;
-  color: var(--text-dim);
-  font-style: italic;
-  padding: 30px 10px;
-  font-size: 0.85rem;
-}
-.section-sep {
-  font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin: 10px 0 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-sep::before, .section-sep::after {
-  content: '';
-  flex: 1;
-  border-top: 1px solid var(--border-dim);
-}
-.ficha-actions { display: flex; gap: 5px; margin-left: auto; align-items: center; }
-.btn-icon {
-  background: none;
-  border: 1px solid var(--border-dim);
-  color: var(--text-dim);
-  border-radius: 3px;
-  width: 26px;
-  height: 26px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-.btn-icon:hover { border-color: var(--crimson); color: var(--crimson-lt); }
-.btn-icon.del:hover { border-color: var(--crimson); color: var(--crimson); }
-.painel-ficha-card { cursor: default; }
-.painel-ficha-card .card-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-.card-info { flex: 1; cursor: pointer; }
-.card-info:hover .ficha-nome { color: var(--crimson-lt); }
-#new-btns { display: flex; gap: 6px; flex-direction: column; }
-.btn-new {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-card);
-  border: 1px dashed var(--border);
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  transition: all 0.2s;
-  width: 100%;
-  text-align: left;
-}
-.btn-new:hover { border-color: var(--gold-dim); color: var(--gold); background: #1f1111; }
-.btn-new .icon { font-size: 1.1rem; }
-.pv-mini {
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  color: var(--crimson);
-  white-space: nowrap;
+/* ── Painel (lista) ── */
+body { font-size:14px; overflow-x:hidden; }
+#view-painel { padding:12px; display:flex; flex-direction:column; gap:6px; min-height:100vh; }
+.ph { display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:2px solid var(--crimson); margin-bottom:4px; }
+.ph-logo { font-family:'Cinzel',serif; font-size:1.1rem; font-weight:700; color:var(--crimson); flex:1; }
+.ph-logo span { font-size:.7rem; color:var(--text-dim); display:block; font-weight:400; }
+.fc { background:var(--bg-card); border:1px solid var(--border); border-radius:5px; padding:9px 11px; margin-bottom:6px; display:flex; flex-direction:column; gap:3px; }
+.fc:hover { border-color:var(--crimson); background:#2a1212; }
+.fc .fn { font-family:'Cinzel',serif; font-size:.88rem; color:var(--text-main); }
+.fc .fm { font-size:.74rem; color:var(--text-dim); }
+.fc-row { display:flex; align-items:center; gap:8px; }
+.fc-row .fc-info { flex:1; cursor:pointer; }
+.badge { font-family:'Cinzel',serif; font-size:.58rem; padding:2px 7px; border-radius:10px; letter-spacing:.07em; }
+.badge-pj { background:rgba(192,57,43,.2); color:var(--crimson-lt); border:1px solid rgba(192,57,43,.4); }
+.badge-am { background:rgba(139,100,20,.2); color:var(--gold); border:1px solid rgba(139,100,20,.4); }
+.btn-icon { background:none; border:1px solid var(--border-dim); color:var(--text-dim); border-radius:3px; width:26px; height:26px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.85rem; transition:all .2s; }
+.btn-icon:hover { border-color:var(--crimson); color:var(--crimson-lt); }
+.sep { font-family:'Cinzel',serif; font-size:.62rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.12em; margin:8px 0 4px; display:flex; align-items:center; gap:8px; }
+.sep::before,.sep::after { content:''; flex:1; border-top:1px solid var(--border-dim); }
+.empty { text-align:center; color:var(--text-dim); font-style:italic; padding:28px 10px; font-size:.84rem; }
+.btn-new { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-card); border:1px dashed var(--border); border-radius:4px; cursor:pointer; font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.05em; color:var(--text-dim); text-transform:uppercase; transition:all .2s; width:100%; text-align:left; }
+.btn-new:hover { border-color:var(--gold-dim); color:var(--gold); background:#1f1111; }
+.btn-new .ico { font-size:1.05rem; }
+
+/* ── Ficha de Personagem (inline) ── */
+#view-pj { display:none; }
+.fh { display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--bg-panel); border-bottom:2px solid var(--crimson); position:sticky; top:0; z-index:100; }
+.fh .ht { font-family:'Cinzel',serif; font-size:.7rem; color:var(--text-dim); }
+.fh .hacts { margin-left:auto; display:flex; gap:5px; align-items:center; }
+.fh-title { font-family:'Cinzel',serif; font-size:1rem; font-weight:700; color:var(--crimson); }
+
+/* Layout ficha */
+.fl { display:grid; grid-template-columns:1fr 262px; min-height:calc(100vh - 52px); }
+.fc-main { padding:12px 14px; overflow-y:auto; border-right:1px solid var(--border-dim); }
+.fc-side { padding:11px 9px; overflow-y:auto; background:var(--bg-panel); }
+
+/* Grids identidade */
+.ig5 { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:5px; margin-bottom:7px; }
+.ig3 { display:grid; grid-template-columns:1fr 1fr 3fr; gap:5px; margin-bottom:10px; }
+
+/* Atributos */
+.ag { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-bottom:10px; }
+.ab { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; text-align:center; padding:4px 3px 2px; }
+.ab .an { font-family:'Cinzel',serif; font-size:.58rem; color:var(--crimson); font-weight:700; letter-spacing:.1em; }
+.ab input { background:transparent; border:none; border-bottom:1px solid var(--border-dim); color:var(--text-main); font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; text-align:center; width:100%; padding:1px 0; }
+.ab input:focus { outline:none; border-color:var(--crimson); }
+.ab .am { font-size:.56rem; color:var(--text-dim); }
+
+/* PV/PM/Defesa */
+.rrow { display:grid; grid-template-columns:1fr 1fr 175px; gap:7px; margin-bottom:10px; }
+.rb { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; padding:7px 9px; }
+.rb .rn { font-family:'Cinzel',serif; font-size:.62rem; font-weight:700; letter-spacing:.07em; }
+.rb .rn.pv { color:var(--crimson); } .rb .rn.pm { color:#2980b9; }
+.ri { display:flex; gap:4px; align-items:center; margin-top:3px; }
+.ri span { color:var(--text-dim); font-size:.85rem; }
+.ri input { font-size:.95rem; text-align:center; }
+.bt { background:var(--bg-deep); border-radius:3px; height:6px; overflow:hidden; margin-top:3px; }
+.bf { height:100%; border-radius:3px; transition:width .3s; }
+.bpv { background:linear-gradient(90deg,#7a1515,#c0392b); }
+.bpm { background:linear-gradient(90deg,#153a6b,#2980b9); }
+.db { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; padding:6px 7px; text-align:center; }
+.dt { font-family:'Cinzel',serif; font-size:2.1rem; font-weight:700; color:var(--text-main); line-height:1; }
+.dl { font-family:'Cinzel',serif; font-size:.58rem; color:var(--crimson); letter-spacing:.1em; }
+.dp { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:4px; }
+.dp label { font-family:'Cinzel',serif; font-size:.48rem; color:var(--text-dim); text-transform:uppercase; display:block; margin-bottom:1px; }
+.dp .dv { font-family:'Cinzel',serif; font-size:.75rem; color:var(--gold); }
+
+/* Armadura */
+.ar-row { display:grid; grid-template-columns:1fr 58px 58px 24px; gap:2px; align-items:center; padding:2px 0; border-bottom:1px solid var(--border-dim); }
+.ar-row.hdr { font-family:'Cinzel',serif; font-size:.55rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--border); }
+.ar-row input { font-size:.8rem; }
+
+/* Ataques */
+.atq-t { width:100%; border-collapse:collapse; }
+.atq-t th { font-family:'Cinzel',serif; font-size:.55rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); padding:2px 3px; text-align:left; background:var(--bg-panel); }
+.atq-t td { padding:2px 3px; border-bottom:1px solid var(--border-dim); }
+.atq-t tr:last-child td { border-bottom:none; }
+.atq-t td input { font-size:.8rem; padding:2px 3px; }
+.abtn { font-family:'Cinzel',serif; font-size:.55rem; font-weight:700; border:1px solid var(--border-dim); border-radius:2px; padding:2px 5px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.abtn.a { background:rgba(201,168,76,.12); color:var(--gold); border-color:var(--gold-dim); }
+.abtn.a:hover { background:rgba(201,168,76,.25); }
+.abtn.d { background:rgba(192,57,43,.12); color:var(--crimson-lt); border-color:var(--crimson); }
+.abtn.d:hover { background:rgba(192,57,43,.25); }
+
+/* Habilidades */
+.h2 { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.he { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:4px 7px; display:flex; flex-direction:column; gap:2px; }
+.hr2 { display:flex; align-items:center; gap:4px; }
+.he input.hn { background:transparent; border:none; border-bottom:1px solid var(--border-dim); color:var(--crimson-lt); font-style:italic; font-weight:600; font-size:.82rem; flex:1; padding:1px 0; }
+.he textarea.hd { background:transparent; border:none; resize:none; font-size:.78rem; min-height:30px; width:100%; color:var(--text-main); line-height:1.3; }
+.he input:focus,.he textarea:focus { outline:none; }
+
+/* Equipamento planilha */
+.eq-t { width:100%; border-collapse:collapse; font-size:.8rem; }
+.eq-t th { font-family:'Cinzel',serif; font-size:.55rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--border); padding:2px 4px; text-align:left; background:var(--bg-panel); }
+.eq-t th.c { text-align:center; }
+.eq-t td { padding:2px 3px; border-bottom:1px solid var(--border-dim); vertical-align:middle; }
+.eq-t td input[type="text"]   { font-size:.8rem; }
+.eq-t td input[type="number"] { font-size:.8rem; text-align:center; width:48px; }
+.eq-t td select { background:var(--bg-input); border:1px solid var(--border); border-radius:3px; color:var(--text-main); font-size:.76rem; padding:1px 3px; width:82px; }
+.ev { font-family:'Cinzel',serif; font-size:.8rem; color:var(--gold); text-align:center; display:block; }
+.cb-wrap { background:var(--bg-panel); border:1px solid var(--border-dim); border-radius:4px; padding:6px 10px; margin-top:5px; }
+.cb-nums { display:flex; gap:12px; flex-wrap:wrap; font-size:.78rem; color:var(--text-dim); }
+.cb-nums strong { font-family:'Cinzel',serif; font-size:.85rem; }
+.cb-bar { margin-top:4px; background:var(--bg-deep); border-radius:3px; height:6px; overflow:hidden; }
+.cb-ok   { background:linear-gradient(90deg,#1a6b1a,#27ae60); }
+.cb-warn { background:linear-gradient(90deg,#8a6a00,var(--gold)); }
+.cb-over { background:linear-gradient(90deg,#7a1515,var(--crimson)); }
+
+/* Perícias (sidebar) */
+.ph2 { display:grid; grid-template-columns:1fr 38px 20px 40px 32px; gap:2px; padding:2px 3px; font-family:'Cinzel',serif; font-size:.52rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg-panel); z-index:2; }
+.pr { display:grid; grid-template-columns:1fr 38px 20px 40px 32px; align-items:center; gap:2px; padding:1px 3px; border-bottom:1px solid var(--border-dim); }
+.pr:hover { background:rgba(255,255,255,.03); }
+.pn { font-size:.76rem; line-height:1.2; }
+.pn .at { font-size:.55rem; color:var(--text-dim); }
+.pn.st { color:var(--text-dim); }
+.pt { font-family:'Cinzel',serif; font-size:.85rem; font-weight:600; color:var(--gold); text-align:center; cursor:pointer; border-radius:2px; transition:background .15s; padding:1px 2px; }
+.pt:hover { background:rgba(201,168,76,.18); color:#ffe080; }
+.pt.tr { color:var(--crimson-lt); }
+.pt.tr:hover { background:rgba(192,57,43,.18); }
+input.ptr { width:13px; height:13px; accent-color:var(--crimson); cursor:pointer; display:block; margin:auto; }
+.pr input[type="number"] { font-size:.74rem; padding:1px 2px; text-align:center; }
+.on input.onome { background:transparent; border:none; border-bottom:1px dashed var(--border-dim); color:var(--text-main); font-size:.76rem; width:100%; padding:0; }
+.on input.onome:focus { outline:none; border-color:var(--crimson); }
+
+/* Roll overlay */
+#roll-log { position:fixed; bottom:14px; right:14px; z-index:999; display:flex; flex-direction:column-reverse; gap:5px; pointer-events:none; max-width:240px; }
+.rc { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; padding:7px 10px; font-family:'Crimson Text',serif; animation:sli .2s; pointer-events:auto; position:relative; }
+@keyframes sli { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.rcl { font-family:'Cinzel',serif; font-size:.58rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+.rcr { font-family:'Cinzel',serif; font-size:1.45rem; font-weight:700; line-height:1; }
+.rcd { font-size:.74rem; color:var(--text-dim); }
+.rc.crit { border-color:var(--gold); } .rc.crit .rcr { color:var(--gold); }
+.rc.fumb { border-color:var(--crimson); } .rc.fumb .rcr { color:#ff6b6b; }
+.rx { position:absolute; top:3px; right:5px; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:.75rem; }
+
+/* ── Ficha de Ameaça (inline) ── */
+#view-am { display:none; }
+.am-layout { display:grid; grid-template-columns:1fr 1fr; min-height:calc(100vh - 52px); }
+.am-l { padding:12px 14px; overflow-y:auto; border-right:1px solid var(--border-dim); }
+.am-r { padding:12px 12px; overflow-y:auto; background:var(--bg-panel); }
+.am-top { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; margin-bottom:9px; }
+.nd-block { background:var(--bg-panel); border:2px solid var(--crimson); border-radius:5px; padding:7px 12px; text-align:center; min-width:82px; }
+.nd-block .ndl { font-family:'Cinzel',serif; font-size:.56rem; color:var(--text-dim); letter-spacing:.1em; }
+.nd-block input { font-family:'Cinzel',serif; font-size:2rem; font-weight:700; color:var(--crimson); background:transparent; border:none; text-align:center; width:74px; display:block; margin:0 auto; }
+.nd-block input:focus { outline:none; }
+.srow { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:7px; }
+.sb { background:var(--bg-input); border:1px solid var(--border); border-radius:4px; padding:5px 5px; text-align:center; }
+.sb label { font-family:'Cinzel',serif; font-size:.56rem; color:var(--crimson); letter-spacing:.05em; display:block; margin-bottom:1px; }
+.sb input { font-family:'Cinzel',serif; font-size:1.1rem; font-weight:700; background:transparent; border:none; border-bottom:1px solid var(--border-dim); color:var(--text-main); width:100%; text-align:center; padding:1px 0; cursor:pointer; }
+.sb input:focus { outline:none; border-color:var(--crimson); cursor:text; }
+.sb .rh { font-size:.5rem; color:var(--text-dim); margin-top:1px; }
+.rb-box { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:5px 7px; margin-bottom:7px; }
+.rb-box label { font-family:'Cinzel',serif; font-size:.56rem; color:var(--gold); display:block; margin-bottom:2px; text-transform:uppercase; letter-spacing:.05em; }
+.rb-box textarea { background:transparent; border:none; resize:none; width:100%; min-height:34px; font-size:.8rem; color:var(--text-main); }
+.rb-box textarea:focus { outline:none; }
+.ac-g { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-bottom:7px; }
+.ac { background:var(--bg-panel); border:1px solid var(--border-dim); border-radius:3px; text-align:center; padding:4px 2px; }
+.ac .acn { font-family:'Cinzel',serif; font-size:.52rem; color:var(--crimson); }
+.ac input { background:transparent; border:none; border-bottom:1px solid var(--border-dim); color:var(--text-main); font-family:'Cinzel',serif; font-size:.95rem; text-align:center; width:100%; padding:1px 0; }
+.ac input:focus { outline:none; border-color:var(--crimson); }
+.pv-blk { background:var(--bg-input); border:1px solid var(--border); border-radius:4px; padding:7px 9px; margin-bottom:7px; }
+.pv-blk .pvn { font-family:'Cinzel',serif; font-size:.62rem; font-weight:700; color:var(--crimson); letter-spacing:.07em; }
+.pv-i { display:flex; gap:4px; align-items:center; margin-top:3px; }
+.pv-i span { color:var(--text-dim); }
+.pv-i input { font-size:.95rem; text-align:center; }
+.atq-blk { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:5px 7px; margin-bottom:5px; }
+.atq-blk-t { font-family:'Cinzel',serif; font-size:.58rem; font-weight:700; color:var(--crimson); text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+.sub3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; margin-top:3px; }
+.sub3 .field label { font-size:.52rem; }
+.pa { display:flex; align-items:center; gap:4px; padding:2px 0; border-bottom:1px solid var(--border-dim); }
+.pa:last-child { border-bottom:none; }
+.pa .pan { font-size:.8rem; flex:1; }
+.pa .pav { font-family:'Cinzel',serif; font-size:.85rem; font-weight:600; color:var(--gold); cursor:pointer; padding:1px 3px; border-radius:2px; min-width:32px; text-align:center; }
+.pa .pav:hover { background:rgba(201,168,76,.15); }
+.he2 { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:5px 7px; margin-bottom:4px; }
+.he2 .hh { display:flex; align-items:center; gap:4px; margin-bottom:2px; }
+.he2 input.hen { background:transparent; border:none; border-bottom:1px solid var(--border-dim); color:var(--crimson-lt); font-weight:600; font-style:italic; font-size:.84rem; flex:1; padding:1px 0; }
+.he2 input.het { background:var(--bg-panel); border:1px solid var(--border-dim); border-radius:2px; color:var(--text-dim); font-size:.68rem; padding:1px 4px; width:84px; }
+.he2 textarea { background:transparent; border:none; resize:none; width:100%; min-height:36px; font-size:.78rem; color:var(--text-main); line-height:1.35; }
+.he2 input:focus,.he2 textarea:focus { outline:none; }
+.tb2 { background:var(--bg-input); border:1px solid var(--border-dim); border-radius:3px; padding:5px 7px; }
+.tb2 textarea { background:transparent; border:none; resize:none; width:100%; min-height:55px; font-size:.8rem; color:var(--text-main); }
+.tb2 textarea:focus { outline:none; }
+
+@media(max-width:680px){
+  .fl { grid-template-columns:1fr; }
+  .ag { grid-template-columns:repeat(3,1fr); }
+  .rrow { grid-template-columns:1fr 1fr; }
+  .rrow .db { grid-column:span 2; }
+  .am-layout { grid-template-columns:1fr; }
+  .ac-g { grid-template-columns:repeat(3,1fr); }
 }
 </style>
 </head>
 <body>
-<div class="painel-wrap">
 
-  <div class="painel-header">
-    <div class="painel-logo">
-      TORMENTA 20
-      <span>Fichas de Personagem</span>
+<!-- ════════════════════════════════════
+     VIEW: PAINEL (lista de fichas)
+════════════════════════════════════ -->
+<div id="view-painel">
+  <div class="ph">
+    <div class="ph-logo">TORMENTA 20 <span>Fichas de Personagem</span></div>
+  </div>
+  <div id="loading" class="empty">Carregando fichas…</div>
+  <div id="lista-pj"></div>
+  <div id="lista-am"></div>
+  <hr class="divider" style="margin-top:auto">
+  <button class="btn-new" onclick="novaFicha('personagem')"><span class="ico">👤</span> Nova Ficha de Personagem</button>
+  <button class="btn-new" onclick="novaFicha('ameaca')"><span class="ico">💀</span> Nova Ficha de Ameaça</button>
+</div>
+
+<!-- ════════════════════════════════════
+     VIEW: FICHA DE PERSONAGEM
+════════════════════════════════════ -->
+<div id="view-pj">
+  <div class="fh">
+    <div>
+      <div class="fh-title">TORMENTA 20</div>
+      <div class="ht">Ficha de Personagem</div>
+    </div>
+    <div class="hacts">
+      <span id="save-status-pj">—</span>
+      <button class="btn btn-primary" onclick="salvarPJ()">Salvar</button>
+      <button class="btn btn-ghost" onclick="voltarPainel()">← Voltar</button>
     </div>
   </div>
 
-  <div id="loading" class="empty-state">Carregando fichas…</div>
-  <div id="lista-pj" style="display:none"></div>
-  <div id="lista-ameaca" style="display:none"></div>
+  <div class="fl">
+  <div class="fc-main">
 
-  <hr class="divider" style="margin-top:auto">
+    <!-- Identidade -->
+    <div class="ig5">
+      <div class="field" style="grid-column:span 2"><label>Personagem</label><input type="text" id="pj-nome" placeholder="Nome do personagem"></div>
+      <div class="field"><label>Jogador(a)</label><input type="text" id="pj-jogador" placeholder="Jogador"></div>
+      <div class="field"><label>Nível</label><input type="number" id="pj-nivel" value="1" min="1" max="20" oninput="pjOnNivel()"></div>
+      <div class="field"><label>Divindade</label><input type="text" id="pj-divindade" placeholder="—"></div>
+    </div>
+    <div class="ig3">
+      <div class="field"><label>Raça</label><input type="text" id="pj-raca" placeholder="Raça"></div>
+      <div class="field"><label>Origem</label><input type="text" id="pj-origem" placeholder="Origem"></div>
+      <div class="field"><label>Classe</label><input type="text" id="pj-classe" placeholder="Classe"></div>
+    </div>
 
-  <div id="new-btns">
-    <button class="btn-new" onclick="novaFicha('personagem')">
-      <span class="icon">👤</span> Nova Ficha de Personagem
-    </button>
-    <button class="btn-new" onclick="novaFicha('ameaca')">
-      <span class="icon">💀</span> Nova Ficha de Ameaça
-    </button>
+    <!-- Atributos -->
+    <div class="section-title" style="font-size:.65rem">Atributos <span style="font-family:'Crimson Text',serif;font-weight:normal;text-transform:none;letter-spacing:0;color:var(--text-dim)">— valor já é o bônus (T20 JdA)</span></div>
+    <div class="ag" id="pj-ag"></div>
+
+    <!-- PV/PM/Defesa -->
+    <div class="section-title" style="font-size:.65rem">PV, PM & Defesa</div>
+    <div class="rrow">
+      <div class="rb"><div class="rn pv">Pontos de Vida</div>
+        <div class="ri">
+          <div class="field" style="flex:1"><label>Atuais</label><input type="number" id="pj-pva" placeholder="0" oninput="pjBar('pv')"></div>
+          <span>/</span>
+          <div class="field" style="flex:1"><label>Máx.</label><input type="number" id="pj-pvm" placeholder="0" oninput="pjBar('pv')"></div>
+        </div>
+        <div class="bt"><div class="bf bpv" id="pj-bpv" style="width:100%"></div></div>
+      </div>
+      <div class="rb"><div class="rn pm">Pontos de Mana</div>
+        <div class="ri">
+          <div class="field" style="flex:1"><label>Atuais</label><input type="number" id="pj-pma" placeholder="0" oninput="pjBar('pm')"></div>
+          <span>/</span>
+          <div class="field" style="flex:1"><label>Máx.</label><input type="number" id="pj-pmm" placeholder="0" oninput="pjBar('pm')"></div>
+        </div>
+        <div class="bt"><div class="bf bpm" id="pj-bpm" style="width:100%"></div></div>
+      </div>
+      <div class="db"><div class="dl">DEFESA</div>
+        <div class="dt" id="pj-def">10</div>
+        <div style="font-size:.55rem;color:var(--text-dim);margin:2px 0 3px">10+DES+arm+esc</div>
+        <div class="dp">
+          <div class="dpart2"><label style="font-family:'Cinzel',serif;font-size:.47rem;color:var(--text-dim);text-transform:uppercase;display:block;margin-bottom:1px">DES</label><div class="dv" id="pj-ddes">+0</div></div>
+          <div class="field"><label style="font-size:.47rem">Arm.</label><input type="number" id="pj-darm" value="0" oninput="pjCalcDef()" style="font-size:.8rem;padding:1px 3px"></div>
+          <div class="field"><label style="font-size:.47rem">Esc.</label><input type="number" id="pj-desc" value="0" oninput="pjCalcDef()" style="font-size:.8rem;padding:1px 3px"></div>
+          <div class="field"><label style="font-size:.47rem">Out.</label><input type="number" id="pj-dout" value="0" oninput="pjCalcDef()" style="font-size:.8rem;padding:1px 3px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Armadura -->
+    <div class="section-title" style="font-size:.65rem">Armadura & Escudo</div>
+    <div id="pj-arml" style="margin-bottom:4px"><div class="ar-row hdr"><span>Item</span><span>Bônus</span><span>Pen.</span><span></span></div></div>
+    <button class="btn btn-ghost" onclick="pjAddArmor()">+ Item</button>
+
+    <!-- Ataques -->
+    <div class="section-title" style="font-size:.65rem">Ataques</div>
+    <div style="overflow-x:auto;margin-bottom:5px">
+      <table class="atq-t"><thead><tr>
+        <th>Nome</th><th>Bônus</th><th>Dano</th><th>Crít.</th><th>Tipo</th><th>Alc.</th><th colspan="2"></th>
+      </tr></thead><tbody id="pj-atqb"></tbody></table>
+    </div>
+    <button class="btn btn-ghost" onclick="pjAddAtq()">+ Ataque</button>
+
+    <!-- Habilidades -->
+    <div class="section-title" style="font-size:.65rem">Habilidades & Magias</div>
+    <div class="h2" id="pj-ha"></div>
+    <div class="h2" id="pj-hb" style="margin-top:5px"></div>
+    <button class="btn btn-ghost" style="margin-top:5px" onclick="pjAddHab()">+ Habilidade / Magia</button>
+
+    <!-- Proficiências -->
+    <div class="section-title" style="font-size:.65rem">Proficiências & Características</div>
+    <div class="prof-box"><textarea id="pj-prof" placeholder="Proficiências, idiomas, características…"></textarea></div>
+
+    <!-- Equipamento -->
+    <div class="section-title" style="font-size:.65rem">Equipamento <span style="font-family:'Crimson Text',serif;font-weight:normal;text-transform:none;letter-spacing:0;color:var(--text-dim)">— cap. 10+2×FOR espaços</span></div>
+    <div style="overflow-x:auto">
+      <table class="eq-t"><thead><tr>
+        <th>Item</th><th class="c">Qtd.</th><th class="c">Espaços</th><th class="c">Total</th><th style="width:24px"></th>
+      </tr></thead><tbody id="pj-eqb"></tbody></table>
+    </div>
+    <button class="btn btn-ghost" style="margin-top:3px" onclick="pjAddEq()">+ Item</button>
+    <div class="cb-wrap">
+      <div class="cb-nums">
+        <div>Usados: <strong id="pj-cu">0</strong></div>
+        <div>Limite: <strong id="pj-cl">10</strong></div>
+        <div>Máx.: <strong id="pj-cm">20</strong></div>
+        <div id="pj-cs"></div>
+      </div>
+      <div class="cb-bar"><div class="cb-ok" id="pj-cb" style="height:100%;width:0%;border-radius:3px;transition:width .3s"></div></div>
+    </div>
+    <div class="field" style="margin-top:5px;max-width:160px"><label>T$ (Tibares)</label><input type="text" id="pj-tib" placeholder="0 T$"></div>
+
+    <!-- Notas -->
+    <div class="section-title" style="font-size:.65rem">Notas / História</div>
+    <div class="prof-box"><textarea id="pj-notas" style="min-height:70px" placeholder="Personalidade, história, anotações…"></textarea></div>
+
+  </div><!-- /fc-main -->
+
+  <!-- Perícias sidebar -->
+  <div class="fc-side">
+    <div style="font-family:'Cinzel',serif;font-size:.65rem;color:var(--crimson);font-weight:700;letter-spacing:.1em;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border)">
+      PERÍCIAS <span style="font-family:'Crimson Text',serif;font-size:.6rem;color:var(--text-dim);text-transform:none;font-weight:normal;letter-spacing:0">clique→rolar</span>
+    </div>
+    <div class="ph2">
+      <span>Perícia</span><span style="text-align:center">Total</span>
+      <span style="text-align:center">T</span><span style="text-align:center">Extra</span><span style="text-align:center">Out.</span>
+    </div>
+    <div id="pj-perlist"></div>
+    <div id="pj-oficios"></div>
+    <button class="btn btn-ghost" style="margin-top:3px;font-size:.58rem" onclick="pjAddOficio()">+ Ofício</button>
+    <div style="margin-top:8px;border-top:1px solid var(--border-dim);padding-top:7px">
+      <div class="field">
+        <label style="font-family:'Cinzel',serif;font-size:.57rem;color:var(--text-dim)">Pen. Armadura (negativo)</label>
+        <input type="number" id="pj-penarm" value="0" oninput="pjSyncPen()" style="max-width:65px">
+      </div>
+      <div style="margin-top:5px;font-size:.67rem;color:var(--text-dim);line-height:1.55">
+        <strong style="color:var(--gold-dim)">½nível+atrib+treino</strong><br>
+        Treino: <span id="pj-tv" style="color:var(--gold)">+2</span>(1–6), +4(7–14), +6(15+)<br>
+        ✠ pen.arm &nbsp;✯ só treinado
+      </div>
+    </div>
   </div>
+  </div><!-- /fl -->
+</div><!-- /view-pj -->
 
+<!-- ════════════════════════════════════
+     VIEW: FICHA DE AMEAÇA
+════════════════════════════════════ -->
+<div id="view-am">
+  <div class="fh">
+    <div><div class="fh-title">TORMENTA 20</div><div class="ht">Ficha de Ameaça</div></div>
+    <div class="hacts">
+      <span id="save-status-am">—</span>
+      <button class="btn btn-primary" onclick="salvarAM()">Salvar</button>
+      <button class="btn btn-ghost" onclick="voltarPainel()">← Voltar</button>
+    </div>
+  </div>
+  <div class="am-layout">
+  <div class="am-l">
+    <div class="am-top">
+      <div>
+        <div class="field" style="margin-bottom:6px"><label>Nome da Ameaça</label>
+          <input type="text" id="am-nome" placeholder="Ex: Duplo Fariell" style="font-size:1.1rem;font-family:'Cinzel',serif;font-weight:700"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+          <div class="field"><label>Tipo de Criatura</label><input type="text" id="am-tipo" placeholder="Humanoide"></div>
+          <div class="field"><label>Tamanho (Papel)</label><input type="text" id="am-tam" placeholder="Médio"></div>
+        </div>
+      </div>
+      <div class="nd-block"><div class="ndl">ND</div>
+        <input type="number" id="am-nd" value="1" min="0" max="30">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+      <div class="field"><label>Iniciativa</label><input type="text" id="am-ini" placeholder="+5" onclick="amRolRes('Iniciativa','am-ini')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"></div>
+      <div class="field"><label>Percepção</label><input type="text" id="am-per" placeholder="+3" onclick="amRolRes('Percepção','am-per')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"></div>
+    </div>
+    <div class="rb-box" style="margin-bottom:7px"><label>Sentidos / Percepção especial</label>
+      <textarea id="am-sen" placeholder="Visão no escuro 18m…"></textarea></div>
+    <div class="section-title" style="font-size:.65rem">Defesa & Resistências</div>
+    <div class="srow">
+      <div class="sb"><label>Defesa</label><input type="text" id="am-def" placeholder="15"><div class="rh">valor fixo</div></div>
+      <div class="sb"><label>Fortitude</label><input type="text" id="am-fort" placeholder="+8" onclick="amRolRes('Fortitude','am-fort')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"><div class="rh">clique→rolar</div></div>
+      <div class="sb"><label>Reflexos</label><input type="text" id="am-ref" placeholder="+4" onclick="amRolRes('Reflexos','am-ref')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"><div class="rh">clique→rolar</div></div>
+      <div class="sb"><label>Vontade</label><input type="text" id="am-von" placeholder="+6" onclick="amRolRes('Vontade','am-von')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"><div class="rh">clique→rolar</div></div>
+    </div>
+    <div class="rb-box"><label>Resistências, Imunidades & Vulnerabilidades</label>
+      <textarea id="am-res" placeholder="Redução de dano 5/adamantina, imunidade a veneno…"></textarea></div>
+    <div class="section-title" style="font-size:.65rem">PV & Mana</div>
+    <div class="pv-blk">
+      <div class="pvn">Pontos de Vida</div>
+      <div class="pv-i">
+        <div class="field" style="flex:1"><label>Atuais</label><input type="number" id="am-pva" placeholder="0" oninput="amPVBar()"></div>
+        <span>/</span>
+        <div class="field" style="flex:1"><label>Máx.</label><input type="number" id="am-pv" placeholder="120" oninput="amPVBar()"></div>
+      </div>
+      <div class="bt" style="margin-top:4px"><div class="bf bpv" id="am-bpv" style="width:100%"></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px">
+      <div class="field"><label>Deslocamento</label><input type="text" id="am-des" placeholder="9m / 6q"></div>
+      <div class="field"><label>Pontos de Mana</label><input type="text" id="am-pm" placeholder="0"></div>
+    </div>
+    <div class="section-title" style="font-size:.65rem">Ataques <span style="font-family:'Crimson Text',serif;font-weight:normal;text-transform:none;letter-spacing:0;color:var(--text-dim)">— clique nos valores p/ rolar</span></div>
+    <div class="atq-blk">
+      <div class="atq-blk-t">Corpo a Corpo</div>
+      <div class="field" style="margin-bottom:3px"><label>Arma / Ataque</label><input type="text" id="am-cacn" placeholder="Ex: Garras ×2"></div>
+      <div class="sub3">
+        <div class="field"><label>Teste</label><input type="text" id="am-cact" placeholder="+10" onclick="amRolAtq('am-cacn','am-cact')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"></div>
+        <div class="field"><label>Dano</label><input type="text" id="am-cacd" placeholder="2d6+5" onclick="amRolDano('am-cacn','am-cacd')" style="cursor:pointer;color:var(--crimson-lt)" title="Clique p/ rolar dano"></div>
+        <div class="field"><label>Crítico</label><input type="text" id="am-cacc" placeholder="20/×2"></div>
+      </div>
+    </div>
+    <div class="atq-blk">
+      <div class="atq-blk-t">Distância</div>
+      <div class="field" style="margin-bottom:3px"><label>Arma / Ataque</label><input type="text" id="am-distn" placeholder="Ex: Bola de Fogo"></div>
+      <div class="sub3">
+        <div class="field"><label>Teste / CD</label><input type="text" id="am-distt" placeholder="CD 18" onclick="amRolAtq('am-distn','am-distt')" style="cursor:pointer;color:var(--gold)" title="Clique p/ rolar"></div>
+        <div class="field"><label>Dano</label><input type="text" id="am-distd" placeholder="5d6" onclick="amRolDano('am-distn','am-distd')" style="cursor:pointer;color:var(--crimson-lt)" title="Clique p/ rolar dano"></div>
+        <div class="field"><label>Alcance</label><input type="text" id="am-dista" placeholder="Longo"></div>
+      </div>
+    </div>
+    <div id="am-atqx"></div>
+    <button class="btn btn-ghost" style="margin-top:3px" onclick="amAddAtqX()">+ Ataque</button>
+  </div>
+  <div class="am-r">
+    <div class="section-title" style="font-size:.65rem;margin-top:0">Atributos</div>
+    <div class="ac-g" id="am-ag"></div>
+    <div class="section-title" style="font-size:.65rem">Perícias <span style="font-family:'Crimson Text',serif;font-weight:normal;text-transform:none;letter-spacing:0;color:var(--text-dim)">clique→rolar</span></div>
+    <div id="am-perl"></div>
+    <button class="btn btn-ghost" style="margin-top:3px;font-size:.6rem" onclick="amAddPer()">+ Perícia</button>
+    <div class="section-title" style="font-size:.65rem;margin-top:10px">Habilidades Especiais</div>
+    <div id="am-hel"></div>
+    <button class="btn btn-ghost" style="margin-top:3px;font-size:.6rem" onclick="amAddHE()">+ Habilidade</button>
+    <div class="section-title" style="font-size:.65rem;margin-top:10px">Equipamentos</div>
+    <div class="tb2"><textarea id="am-eq" placeholder="Armaduras, armas e itens…"></textarea></div>
+    <div class="section-title" style="font-size:.65rem;margin-top:8px">Tesouro</div>
+    <div class="tb2"><textarea id="am-tes" placeholder="Tibares, itens ao ser derrotada…"></textarea></div>
+    <div class="section-title" style="font-size:.65rem;margin-top:8px">Táticas & Notas</div>
+    <div class="tb2"><textarea id="am-not" placeholder="Comportamento em combate, motivações…"></textarea></div>
+  </div>
+  </div>
 </div>
+
+<div id="roll-log"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@owlbear-rodeo/sdk@1.10.0/dist/bundle.js"></script>
 <script src="../js/t20.js"></script>
 <script>
-const BASE = window.location.href.replace(/\/pages\/[^/]+$/, '');
+/* ════════ ESTADO GLOBAL ════════ */
+let currentFichaId   = null;
+let currentFichaTipo = null;
+let saveTimerPJ = null, saveTimerAM = null;
+let pjHabCount = 0, pjOficioCount = 0, pjAtqXCount = 0;
+let amPerCount = 0, amHECount = 0, amAtqXCount = 0;
+const ATRIBS = ['FOR','DES','CON','INT','SAB','CAR'];
 
+/* ════════ INIT ════════ */
 T20.onReady(async () => {
-  await renderLista();
-
-  // Watch for changes from other players
-  try {
-    OBR.room.onMetadataChange(async () => { await renderLista(); });
-  } catch {}
+  buildPJAtribs(); buildPJPericias();
+  buildAMAtribs();
+  await renderPainel();
+  try { OBR.room.onMetadataChange(() => { if(showing==='painel') renderPainel(); }); } catch {}
+  T20.onRoll(msg => showRollCard(msg));
 });
 
-async function renderLista() {
-  const todas = await T20.getAllFichas();
-  const pjs    = Object.values(todas).filter(f => f.tipo === 'personagem');
-  const ameacas= Object.values(todas).filter(f => f.tipo === 'ameaca');
-
-  const loading = document.getElementById('loading');
-  const listaPJ = document.getElementById('lista-pj');
-  const listaAM = document.getElementById('lista-ameaca');
-  loading.style.display = 'none';
-
-  // PJs
-  if (pjs.length > 0) {
-    listaPJ.style.display = 'block';
-    listaPJ.innerHTML = `<div class="section-sep">Personagens</div>` +
-      pjs.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(f => fichaCardHTML(f)).join('');
-  } else {
-    listaPJ.style.display = 'none';
-  }
-
-  // Ameaças
-  if (ameacas.length > 0) {
-    listaAM.style.display = 'block';
-    listaAM.innerHTML = `<div class="section-sep">Ameaças</div>` +
-      ameacas.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).map(f => fichaCardHTML(f)).join('');
-  } else {
-    listaAM.style.display = 'none';
-  }
-
-  if (pjs.length === 0 && ameacas.length === 0) {
-    loading.style.display = 'block';
-    loading.textContent = 'Nenhuma ficha criada ainda. Clique abaixo para criar.';
-  }
+/* ════════ NAVEGAÇÃO ════════ */
+let showing = 'painel';
+function show(view) {
+  document.getElementById('view-painel').style.display = view==='painel' ? '' : 'none';
+  document.getElementById('view-pj').style.display     = view==='pj'     ? '' : 'none';
+  document.getElementById('view-am').style.display     = view==='am'     ? '' : 'none';
+  showing = view;
 }
 
-function fichaCardHTML(f) {
-  const badge = f.tipo === 'ameaca'
-    ? `<span class="ficha-badge badge-ameaca">Ameaça ND ${f.nd || '?'}</span>`
-    : `<span class="ficha-badge badge-pj">Personagem • Nível ${f.nivel || 1}</span>`;
+async function voltarPainel() {
+  // Auto-save antes de sair
+  if (showing === 'pj') await salvarPJ();
+  if (showing === 'am') await salvarAM();
+  await renderPainel();
+  show('painel');
+}
 
-  const pvInfo = f.tipo === 'personagem'
-    ? `<span class="pv-mini">PV ${f.pv_atual ?? f.pv_max ?? '?'}/${f.pv_max ?? '?'}</span>`
-    : `<span class="pv-mini">PV ${f.pv ?? '?'}</span>`;
+/* ════════ PAINEL ════════ */
+async function renderPainel() {
+  const todas = await T20.getAllFichas();
+  const pjs   = Object.values(todas).filter(f=>f.tipo==='personagem');
+  const ams   = Object.values(todas).filter(f=>f.tipo==='ameaca');
+  const load  = document.getElementById('loading');
+  const lpj   = document.getElementById('lista-pj');
+  const lam   = document.getElementById('lista-am');
+  load.style.display = 'none';
+  if (!pjs.length && !ams.length) { load.style.display=''; load.textContent='Nenhuma ficha criada ainda.'; }
+  lpj.innerHTML = pjs.length ? '<div class="sep">Personagens</div>'+pjs.sort((a,b)=>(a['pj-nome']||a.nome||'').localeCompare(b['pj-nome']||b.nome||'')).map(fichaCard).join('') : '';
+  lam.innerHTML = ams.length ? '<div class="sep">Ameaças</div>'+ams.sort((a,b)=>(a['am-nome']||a.nome||'').localeCompare(b['am-nome']||b.nome||'')).map(fichaCard).join('') : '';
+}
 
-  const meta = f.tipo === 'personagem'
-    ? [f.raca, f.classe, f.divindade].filter(Boolean).join(' • ')
-    : [f.tipo_criatura, f.tamanho].filter(Boolean).join(' • ');
-
-  return `
-    <div class="painel-ficha-card card">
-      <div class="card-body">
-        <div class="card-info" onclick="abrirFicha('${f._id}', '${f.tipo}')">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-            ${badge} ${pvInfo}
-          </div>
-          <div class="ficha-nome">${f.nome || '(sem nome)'}</div>
-          ${meta ? `<div class="ficha-meta">${meta}</div>` : ''}
-        </div>
-        <div class="ficha-actions">
-          <button class="btn-icon del" title="Excluir" onclick="excluirFicha('${f._id}', event)">✕</button>
-        </div>
-      </div>
-    </div>`;
+function fichaCard(f) {
+  const isPJ  = f.tipo==='personagem';
+  const nome  = isPJ ? (f['pj-nome']||f.nome||'(sem nome)') : (f['am-nome']||f.nome||'(sem nome)');
+  const badge = isPJ ? `<span class="badge badge-pj">Personagem • Nv.${f['pj-nivel']||f.nivel||1}</span>`
+                     : `<span class="badge badge-am">Ameaça ND ${f['am-nd']||f.nd||'?'}</span>`;
+  const pv    = isPJ ? `PV ${f['pj-pva']??'?'}/${f['pj-pvm']??'?'}` : `PV ${f['am-pva']??'?'}/${f['am-pv']??'?'}`;
+  return `<div class="fc"><div class="fc-row">
+    <div class="fc-info" onclick="abrirFicha('${f._id}','${f.tipo}')">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">${badge}<span style="font-size:.7rem;color:var(--text-dim)">${pv}</span></div>
+      <div class="fn">${nome}</div>
+    </div>
+    <button class="btn-icon" onclick="excluirFicha('${f._id}',event)" title="Excluir">✕</button>
+  </div></div>`;
 }
 
 async function novaFicha(tipo) {
-  const id = T20.uuid();
-  await T20.saveFicha(id, { tipo, nome: '', nivel: 1 });
-  abrirFicha(id, tipo);
+  currentFichaId   = T20.uuid();
+  currentFichaTipo = tipo;
+  await T20.saveFicha(currentFichaId, { tipo });
+  resetFicha(tipo);
+  show(tipo==='personagem'?'pj':'am');
 }
 
-function abrirFicha(id, tipo) {
-  const page = tipo === 'ameaca' ? 'ficha-ameaca.html' : 'ficha-personagem.html';
-  const url = `${BASE}/pages/${page}?id=${id}`;
-  try {
-    OBR.modal.open({
-      id: `tormenta20/modal/${id}`,
-      url: url,
-      height: 700,
-      width: 960,
-    });
-  } catch {
-    window.open(url, '_blank');
-  }
+async function abrirFicha(id, tipo) {
+  currentFichaId   = id;
+  currentFichaTipo = tipo;
+  const d = await T20.getFicha(id);
+  resetFicha(tipo);
+  if (d) tipo==='personagem' ? loadPJ(d) : loadAM(d);
+  show(tipo==='personagem'?'pj':'am');
 }
 
 async function excluirFicha(id, e) {
   e.stopPropagation();
   if (!confirm('Excluir esta ficha?')) return;
   await T20.deleteFicha(id);
-  await renderLista();
+  await renderPainel();
 }
+
+/* ════════ FICHA PJ — BUILD ════════ */
+function buildPJAtribs() {
+  document.getElementById('pj-ag').innerHTML = ATRIBS.map(a=>`
+    <div class="ab"><div class="an">${a}</div>
+    <input type="number" id="pj-a${a}" value="0" min="-5" max="15" oninput="pjOnAtrib()">
+    <div class="am">bônus</div></div>`).join('');
+}
+
+function buildPJPericias() {
+  const list = document.getElementById('pj-perlist');
+  list.innerHTML = T20.PERICIAS.map((p,i)=>{
+    if(p.custom) return '';
+    const id=`pj-p${i}`;
+    const tags=(p.armadura?'✠':'')+(p.treinado?'✯':'');
+    return `<div class="pr" id="pj-row${i}">
+      <div class="pn${p.treinado?' st':''}">${p.nome} <span class="at">${p.attr}${tags}</span></div>
+      <div class="pt" id="pj-pt${i}" onclick="pjRolPer(${i})" title="Rolar ${p.nome}">—</div>
+      <div><input type="checkbox" class="ptr" id="pj-tr${i}" onchange="pjRecalcPer(${i})"></div>
+      <div><input type="number" id="pj-ex${i}" value="0" placeholder="0" oninput="pjRecalcPer(${i})"></div>
+      <div><input type="number" id="pj-ou${i}" value="0" placeholder="0" oninput="pjRecalcPer(${i})"></div>
+    </div>`;
+  }).join('');
+}
+
+function buildAMAtribs() {
+  document.getElementById('am-ag').innerHTML = ATRIBS.map(a=>`
+    <div class="ac"><div class="acn">${a}</div>
+    <input type="number" id="am-a${a}" value="0" min="-5" max="15" oninput="pjSched()"></div>`).join('');
+}
+
+function resetFicha(tipo) {
+  if (tipo==='personagem') {
+    // Reset campos PJ
+    ['pj-nome','pj-jogador','pj-raca','pj-origem','pj-classe','pj-divindade','pj-prof','pj-tib','pj-notas'].forEach(k=>{const e=document.getElementById(k);if(e)e.value='';});
+    document.getElementById('pj-nivel').value=1;
+    ATRIBS.forEach(a=>{const e=document.getElementById(`pj-a${a}`);if(e)e.value=0;});
+    ['pj-pva','pj-pvm','pj-pma','pj-pmm','pj-darm','pj-desc','pj-dout','pj-penarm'].forEach(k=>{const e=document.getElementById(k);if(e)e.value=0;});
+    document.getElementById('pj-atqb').innerHTML='';
+    document.getElementById('pj-arml').innerHTML='<div class="ar-row hdr"><span>Item</span><span>Bônus</span><span>Pen.</span><span></span></div>';
+    document.getElementById('pj-ha').innerHTML='';
+    document.getElementById('pj-hb').innerHTML='';
+    document.getElementById('pj-eqb').innerHTML='';
+    document.getElementById('pj-oficios').innerHTML='';
+    pjHabCount=0; pjOficioCount=0;
+    for(let i=0;i<3;i++) pjAddAtq();
+    for(let i=0;i<2;i++) pjAddArmor();
+    for(let i=0;i<4;i++) pjAddEq();
+    pjAddOficio();
+    pjOnAtrib(); pjOnNivel();
+  } else {
+    ['am-nome','am-tipo','am-tam','am-ini','am-per','am-sen','am-def','am-fort','am-ref','am-von','am-res','am-pm','am-des','am-cacn','am-cact','am-cacd','am-cacc','am-distn','am-distt','am-distd','am-dista','am-eq','am-tes','am-not'].forEach(k=>{const e=document.getElementById(k);if(e)e.value='';});
+    document.getElementById('am-nd').value=1;
+    document.getElementById('am-pva').value='';
+    document.getElementById('am-pv').value='';
+    ATRIBS.forEach(a=>{const e=document.getElementById(`am-a${a}`);if(e)e.value=0;});
+    document.getElementById('am-perl').innerHTML='';
+    document.getElementById('am-hel').innerHTML='';
+    document.getElementById('am-atqx').innerHTML='';
+    amPerCount=0; amHECount=0; amAtqXCount=0;
+    ['Enganação','Intuição','Percepção'].forEach(n=>amAddPer({nome:n,valor:''}));
+  }
+}
+
+/* ════════ PJ — CÁLCULOS ════════ */
+function pjOnAtrib() { pjCalcDef(); pjRecalcPers(); pjCalcCarga(); pjSched(); }
+function pjOnNivel() {
+  const n=parseInt(document.getElementById('pj-nivel')?.value)||1;
+  document.getElementById('pj-tv').textContent='+'+T20.bonusTreino(n);
+  pjRecalcPers(); pjSched();
+}
+function pjCalcDef() {
+  const des=parseInt(document.getElementById('pj-aDES')?.value)||0;
+  const arm=parseInt(document.getElementById('pj-darm')?.value)||0;
+  const esc=parseInt(document.getElementById('pj-desc')?.value)||0;
+  const out=parseInt(document.getElementById('pj-dout')?.value)||0;
+  document.getElementById('pj-def').textContent=10+des+arm+esc+out;
+  document.getElementById('pj-ddes').textContent=T20.sinal(des);
+  pjSyncPen();
+}
+function pjSyncPen() {
+  let pen=0;
+  document.querySelectorAll('#pj-arml .ar-row:not(.hdr)').forEach(r=>{
+    pen+=parseInt(r.querySelectorAll('input')[2]?.value)||0;
+  });
+  const pf=document.getElementById('pj-penarm');
+  if(pf&&!pf.matches(':focus')) pf.value=pen;
+  pjRecalcPers();
+}
+function pjBar(t) {
+  const a=parseInt(document.getElementById(`pj-${t==='pv'?'pva':'pma'}`)?.value)||0;
+  const m=parseInt(document.getElementById(`pj-${t==='pv'?'pvm':'pmm'}`)?.value)||1;
+  const el=document.getElementById(`pj-b${t}`);
+  if(el) el.style.width=Math.max(0,Math.min(100,(a/m)*100))+'%';
+}
+function pjRecalcPers() {
+  T20.PERICIAS.forEach((_,i)=>{ if(!T20.PERICIAS[i].custom) pjRecalcPer(i); });
+  document.querySelectorAll('#pj-oficios .pr').forEach(el=>{
+    const idBase=el.id.replace('pj-orow-','');
+    pjRecalcOficio(idBase);
+  });
+}
+function pjRecalcPer(i) {
+  const p=T20.PERICIAS[i];
+  if(p.custom)return;
+  const nivel=parseInt(document.getElementById('pj-nivel')?.value)||1;
+  const attr=parseInt(document.getElementById(`pj-a${p.attr}`)?.value)||0;
+  const tr=document.getElementById(`pj-tr${i}`)?.checked||false;
+  const ex=parseInt(document.getElementById(`pj-ex${i}`)?.value)||0;
+  const ou=parseInt(document.getElementById(`pj-ou${i}`)?.value)||0;
+  const pen=p.armadura?(parseInt(document.getElementById('pj-penarm')?.value)||0):0;
+  const total=T20.calcPericia({nivel,attrValue:attr,treinado:tr,treino_extra:ex,outros:ou,penArm:pen});
+  const el=document.getElementById(`pj-pt${i}`);
+  if(el){el.textContent=T20.sinal(total);el.className='pt'+(tr?' tr':'');}
+}
+async function pjRolPer(i) {
+  const p=T20.PERICIAS[i];if(p.custom)return;
+  const nivel=parseInt(document.getElementById('pj-nivel')?.value)||1;
+  const attr=parseInt(document.getElementById(`pj-a${p.attr}`)?.value)||0;
+  const tr=document.getElementById(`pj-tr${i}`)?.checked||false;
+  const ex=parseInt(document.getElementById(`pj-ex${i}`)?.value)||0;
+  const ou=parseInt(document.getElementById(`pj-ou${i}`)?.value)||0;
+  const pen=p.armadura?(parseInt(document.getElementById('pj-penarm')?.value)||0):0;
+  const valor=T20.calcPericia({nivel,attrValue:attr,treinado:tr,treino_extra:ex,outros:ou,penArm:pen});
+  const pjnome=document.getElementById('pj-nome')?.value||'';
+  const res=await T20.rolar({label:p.nome,valor,tipo:'pericia',personagem:pjnome});
+  showRollCard({label:p.nome,...res,personagem:pjnome});
+}
+
+/* Ofícios */
+function pjAddOficio(d={}) {
+  const oc=pjOficioCount++;
+  const id=`of${oc}`;
+  const cont=document.getElementById('pj-oficios');
+  const div=document.createElement('div');
+  div.className='pr on'; div.id=`pj-orow-${id}`;
+  div.innerHTML=`
+    <div class="pn"><input class="onome" type="text" value="${d.nome||'Ofício ()'}" id="pj-onome-${id}" placeholder="Ofício (Alquimia…)"><span class="at">INT✯</span></div>
+    <div class="pt" id="pj-opt-${id}" onclick="pjRolOficio('${id}')" title="Rolar">—</div>
+    <div><input type="checkbox" class="ptr" id="pj-otr-${id}" ${d.treinado?'checked':''} onchange="pjRecalcOficio('${id}')"></div>
+    <div><input type="number" id="pj-oex-${id}" value="${d.extra||0}" placeholder="0" oninput="pjRecalcOficio('${id}')"></div>
+    <div><input type="number" id="pj-oou-${id}" value="${d.outros||0}" placeholder="0" oninput="pjRecalcOficio('${id}')"></div>`;
+  div.querySelectorAll('input').forEach(el=>el.addEventListener('input',pjSched));
+  cont.appendChild(div);
+  pjRecalcOficio(id);
+}
+function pjRecalcOficio(id) {
+  const nivel=parseInt(document.getElementById('pj-nivel')?.value)||1;
+  const attr=parseInt(document.getElementById('pj-aINT')?.value)||0;
+  const tr=document.getElementById(`pj-otr-${id}`)?.checked||false;
+  const ex=parseInt(document.getElementById(`pj-oex-${id}`)?.value)||0;
+  const ou=parseInt(document.getElementById(`pj-oou-${id}`)?.value)||0;
+  const total=T20.calcPericia({nivel,attrValue:attr,treinado:tr,treino_extra:ex,outros:ou});
+  const el=document.getElementById(`pj-opt-${id}`);
+  if(el){el.textContent=T20.sinal(total);el.className='pt'+(tr?' tr':'');}
+}
+async function pjRolOficio(id) {
+  const nivel=parseInt(document.getElementById('pj-nivel')?.value)||1;
+  const attr=parseInt(document.getElementById('pj-aINT')?.value)||0;
+  const tr=document.getElementById(`pj-otr-${id}`)?.checked||false;
+  const ex=parseInt(document.getElementById(`pj-oex-${id}`)?.value)||0;
+  const ou=parseInt(document.getElementById(`pj-oou-${id}`)?.value)||0;
+  const valor=T20.calcPericia({nivel,attrValue:attr,treinado:tr,treino_extra:ex,outros:ou});
+  const nome=document.getElementById(`pj-onome-${id}`)?.value||'Ofício';
+  const pjnome=document.getElementById('pj-nome')?.value||'';
+  const res=await T20.rolar({label:nome,valor,tipo:'pericia',personagem:pjnome});
+  showRollCard({label:nome,...res,personagem:pjnome});
+}
+
+/* ════════ PJ — ATAQUES ════════ */
+function pjAddAtq(d={}) {
+  const tb=document.getElementById('pj-atqb');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="text" value="${d.nome||''}" placeholder="Espada longa"></td>
+    <td><input type="text" value="${d.bonus||''}" placeholder="+5" style="max-width:48px;text-align:center"></td>
+    <td><input type="text" value="${d.dano||''}" placeholder="1d8+3" style="max-width:56px;text-align:center"></td>
+    <td><input type="text" value="${d.critico||''}" placeholder="20/×2" style="max-width:52px"></td>
+    <td><input type="text" value="${d.tipo||''}" placeholder="Cortante" style="max-width:62px"></td>
+    <td><input type="text" value="${d.alcance||''}" placeholder="Curto" style="max-width:52px"></td>
+    <td><button class="abtn a" onclick="pjRolAtq(this)">🎲Atq</button></td>
+    <td style="white-space:nowrap"><button class="abtn d" onclick="pjRolDano(this)">⚔️Dano</button>
+        <button class="btn-remove" onclick="this.closest('tr').remove();pjSched()">✕</button></td>`;
+  tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',pjSched));
+  tb.appendChild(tr);
+}
+async function pjRolAtq(btn) {
+  const ins=btn.closest('tr').querySelectorAll('input');
+  const nome=ins[0]?.value||'Ataque';
+  const bonus=parseInt((ins[1]?.value||'0').replace(/[^0-9+\-]/g,''))||0;
+  const pjnome=document.getElementById('pj-nome')?.value||'';
+  const res=await T20.rolar({label:nome,valor:bonus,tipo:'ataque',personagem:pjnome});
+  showRollCard({label:`Ataque: ${nome}`,...res,personagem:pjnome});
+}
+async function pjRolDano(btn) {
+  const ins=btn.closest('tr').querySelectorAll('input');
+  const nome=ins[0]?.value||'Ataque'; const expr=ins[2]?.value||'';
+  if(!expr)return;
+  const pjnome=document.getElementById('pj-nome')?.value||'';
+  const res=await T20.rolarDano({label:`Dano: ${nome}`,expr,personagem:pjnome});
+  showRollCard({label:`Dano: ${nome}`,total:res.total,tipo:'dano',personagem:pjnome,isDano:true});
+}
+
+/* ════════ PJ — ARMADURA ════════ */
+function pjAddArmor(d={}) {
+  const list=document.getElementById('pj-arml');
+  const div=document.createElement('div'); div.className='ar-row';
+  div.innerHTML=`
+    <input type="text" value="${d.nome||''}" placeholder="Armadura de couro">
+    <input type="number" value="${d.bonus||''}" placeholder="0">
+    <input type="number" value="${d.pen||''}" placeholder="0">
+    <button class="btn-remove" onclick="this.closest('.ar-row').remove();pjSyncPen();pjSched()">✕</button>`;
+  const bonusInp=div.querySelectorAll('input')[1];
+  bonusInp.addEventListener('input',()=>{
+    let tArm=0,tEsc=0;
+    document.querySelectorAll('#pj-arml .ar-row:not(.hdr)').forEach(r=>{
+      const ins=r.querySelectorAll('input');
+      if((ins[0]?.value||'').toLowerCase().includes('escudo')) tEsc+=parseInt(ins[1]?.value)||0;
+      else tArm+=parseInt(ins[1]?.value)||0;
+    });
+    document.getElementById('pj-darm').value=tArm||'';
+    document.getElementById('pj-desc').value=tEsc||'';
+    pjCalcDef();
+  });
+  div.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{pjSyncPen();pjSched();}));
+  list.appendChild(div);
+}
+
+/* ════════ PJ — HABILIDADES ════════ */
+function pjAddHab(d={}) {
+  const id=pjHabCount++; const col=id%2===0?'a':'b';
+  const con=document.getElementById(`pj-h${col}`);
+  const div=document.createElement('div'); div.className='he'; div.id=`pj-h_${id}`;
+  div.innerHTML=`<div class="hr2"><input class="hn" type="text" value="${d.nome||''}" placeholder="Nome da habilidade">
+    <button class="btn-remove" onclick="document.getElementById('pj-h_${id}').remove();pjSched()">✕</button></div>
+    <textarea class="hd" placeholder="Descrição, efeito, custo de PM…">${d.desc||''}</textarea>`;
+  div.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',pjSched));
+  con.appendChild(div);
+}
+
+/* ════════ PJ — EQUIPAMENTO ════════ */
+function pjAddEq(d={}) {
+  const tb=document.getElementById('pj-eqb');
+  const tr=document.createElement('tr');
+  const espOpts=['0.5','1','2','5','10'].map(v=>`<option value="${v}" ${(d.esp||'1')===v?'selected':''}>${v==='0.5'?'½':v} esp.</option>`).join('');
+  tr.innerHTML=`
+    <td><input type="text" value="${d.item||''}" placeholder="Item" style="min-width:110px"></td>
+    <td><input type="number" value="${d.qtd||1}" min="0" style="width:44px;text-align:center" oninput="pjCalcCarga()"></td>
+    <td><select onchange="pjCalcCarga()">${espOpts}</select></td>
+    <td><span class="ev" id="eq-tot-${tb.children.length}">—</span></td>
+    <td><button class="btn-remove" onclick="this.closest('tr').remove();pjCalcCarga();pjSched()">✕</button></td>`;
+  tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',pjSched));
+  tb.appendChild(tr); pjCalcCarga();
+}
+function pjCalcCarga() {
+  const FOR=parseInt(document.getElementById('pj-aFOR')?.value)||0;
+  const lim=10+2*FOR; const max=lim*2; let total=0;
+  document.querySelectorAll('#pj-eqb tr').forEach((tr,i)=>{
+    const qtd=parseFloat(tr.querySelectorAll('input[type="number"]')[0]?.value)||0;
+    const esp=parseFloat(tr.querySelector('select')?.value)||1;
+    const sub=qtd*esp; total+=sub;
+    const el=tr.querySelector('.ev');
+    if(el) el.textContent=sub%1===0?sub:sub.toFixed(1);
+  });
+  document.getElementById('pj-cu').textContent=total%1===0?total:total.toFixed(1);
+  document.getElementById('pj-cl').textContent=lim;
+  document.getElementById('pj-cm').textContent=max;
+  const pct=Math.min(100,(total/Math.max(max,1))*100);
+  const bar=document.getElementById('pj-cb');
+  const stat=document.getElementById('pj-cs');
+  if(total>max){bar.className='cb-over';stat.innerHTML='<span style="color:#ff6b6b;font-weight:bold">⚠ Excede o máximo!</span>';}
+  else if(total>lim){bar.className='cb-warn';stat.innerHTML='<span style="color:var(--gold)">⚠ Sobrecarregado</span>';}
+  else{bar.className='cb-ok';stat.innerHTML=`<span style="color:#27ae60">✓ ${(lim-total)%1===0?(lim-total):(lim-total).toFixed(1)} livres</span>`;}
+  bar.style.width=pct+'%'; bar.style.height='100%'; bar.style.borderRadius='3px'; bar.style.transition='width .3s';
+}
+
+/* ════════ PJ — LOAD/SAVE ════════ */
+function loadPJ(d) {
+  const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null){if(e.type==='checkbox')e.checked=!!v;else e.value=v;}};
+  ['nome','jogador','nivel','raca','origem','classe','divindade'].forEach(k=>s(`pj-${k}`,d[`pj-${k}`]??d[k]));
+  ATRIBS.forEach(a=>s(`pj-a${a}`,d[`pj-a${a}`]??d[`a_${a}`]??0));
+  ['darm','desc','dout'].forEach(k=>s(`pj-${k}`,d[`pj-${k}`]??d[`def_${k.replace('d','')}`]));
+  ['pva','pvm','pma','pmm'].forEach(k=>s(`pj-${k}`,d[`pj-${k}`]??d[k.replace('a','_atual').replace('m','_max')]));
+  s('pj-penarm',d['pj-penarm']??d.pen_arm);
+  T20.PERICIAS.forEach((_,i)=>{if(T20.PERICIAS[i].custom)return;
+    s(`pj-tr${i}`,d[`pj-tr${i}`]??d[`tr_p${i}`]);
+    s(`pj-ex${i}`,d[`pj-ex${i}`]??d[`ex_p${i}`]);
+    s(`pj-ou${i}`,d[`pj-ou${i}`]??d[`ou_p${i}`]);
+  });
+  if(d.oficios?.length){pjOficioCount=0;document.getElementById('pj-oficios').innerHTML='';d.oficios.forEach(o=>pjAddOficio(o));}
+  if(d.ataques?.length){document.getElementById('pj-atqb').innerHTML='';d.ataques.forEach(a=>pjAddAtq(a));}
+  if(d.armaduras?.length){document.querySelectorAll('#pj-arml .ar-row:not(.hdr)').forEach(r=>r.remove());d.armaduras.forEach(a=>pjAddArmor(a));}
+  if(d.habilidades?.length){pjHabCount=0;document.getElementById('pj-ha').innerHTML='';document.getElementById('pj-hb').innerHTML='';d.habilidades.forEach(h=>pjAddHab(h));}
+  if(d.equip?.length){document.getElementById('pj-eqb').innerHTML='';d.equip.forEach(e=>pjAddEq(e));}
+  ['prof','tib','notas'].forEach(k=>s(`pj-${k}`,d[`pj-${k}`]??d[k==='prof'?'proficiencias':k==='tib'?'tibares':k]));
+  pjOnNivel(); pjOnAtrib(); pjBar('pv'); pjBar('pm');
+}
+
+function collectPJ() {
+  const v=id=>document.getElementById(id)?.value??'';
+  const ck=id=>document.getElementById(id)?.checked??false;
+  const d={tipo:'personagem'};
+  ['nome','jogador','nivel','raca','origem','classe','divindade'].forEach(k=>d[`pj-${k}`]=v(`pj-${k}`));
+  ATRIBS.forEach(a=>d[`pj-a${a}`]=v(`pj-a${a}`));
+  ['darm','desc','dout'].forEach(k=>d[`pj-${k}`]=v(`pj-${k}`));
+  ['pva','pvm','pma','pmm'].forEach(k=>d[`pj-${k}`]=v(`pj-${k}`));
+  d['pj-penarm']=v('pj-penarm');
+  T20.PERICIAS.forEach((_,i)=>{if(T20.PERICIAS[i].custom)return;
+    d[`pj-tr${i}`]=ck(`pj-tr${i}`);
+    d[`pj-ex${i}`]=v(`pj-ex${i}`);
+    d[`pj-ou${i}`]=v(`pj-ou${i}`);
+  });
+  d.oficios=Array.from(document.querySelectorAll('#pj-oficios .pr')).map(el=>{
+    const id=el.id.replace('pj-orow-','');
+    return{nome:v(`pj-onome-${id}`),treinado:ck(`pj-otr-${id}`),extra:v(`pj-oex-${id}`),outros:v(`pj-oou-${id}`)};
+  });
+  d.ataques=Array.from(document.querySelectorAll('#pj-atqb tr')).map(tr=>{
+    const ins=tr.querySelectorAll('input');
+    return{nome:ins[0]?.value,bonus:ins[1]?.value,dano:ins[2]?.value,critico:ins[3]?.value,tipo:ins[4]?.value,alcance:ins[5]?.value};
+  });
+  d.armaduras=Array.from(document.querySelectorAll('#pj-arml .ar-row:not(.hdr)')).map(r=>{
+    const ins=r.querySelectorAll('input');
+    return{nome:ins[0]?.value,bonus:ins[1]?.value,pen:ins[2]?.value};
+  });
+  d.habilidades=[];
+  ['a','b'].forEach(c=>{document.querySelectorAll(`#pj-h${c} .he`).forEach(el=>{
+    d.habilidades.push({nome:el.querySelector('.hn')?.value||'',desc:el.querySelector('.hd')?.value||''});
+  });});
+  d.equip=Array.from(document.querySelectorAll('#pj-eqb tr')).map(tr=>{
+    const ins=tr.querySelectorAll('input'); const sel=tr.querySelector('select');
+    return{item:ins[0]?.value||'',qtd:ins[1]?.value||1,esp:sel?.value||'1'};
+  });
+  ['prof','tib','notas'].forEach(k=>d[`pj-${k}`]=v(`pj-${k}`));
+  return d;
+}
+
+function pjSched(){clearTimeout(saveTimerPJ);setStat('pj','saving','Salvando…');saveTimerPJ=setTimeout(salvarPJ,1400);}
+async function salvarPJ(){
+  clearTimeout(saveTimerPJ); setStat('pj','saving','Salvando…');
+  const ok=await T20.saveFicha(currentFichaId,collectPJ());
+  setStat('pj',ok?'saved':'error',ok?'✓ Salvo':'✕ Erro');
+}
+
+/* ════════ AMEAÇA ════════ */
+function amAddPer(d={}) {
+  const id=amPerCount++;
+  const cont=document.getElementById('am-perl');
+  const div=document.createElement('div'); div.className='pa'; div.id=`am-pr${id}`;
+  div.innerHTML=`
+    <input type="text" class="pan" value="${d.nome||''}" placeholder="Perícia" style="font-size:.8rem">
+    <input type="text" id="am-pav${id}" value="${d.valor||''}" placeholder="+0" style="display:none;width:48px;text-align:center;font-size:.8rem">
+    <div class="pav" id="am-pavd${id}" onclick="amRolPer(${id})" title="Clique→rolar">${d.valor||'—'}</div>
+    <button class="btn-remove" onclick="document.getElementById('am-pr${id}').remove();amSched()">✕</button>`;
+  const inp=div.querySelector(`#am-pav${id}`);
+  const disp=div.querySelector(`#am-pavd${id}`);
+  disp.addEventListener('dblclick',()=>{disp.style.display='none';inp.style.display='';inp.focus();});
+  inp.addEventListener('blur',()=>{disp.textContent=inp.value||'—';inp.style.display='none';disp.style.display='';amSched();});
+  inp.addEventListener('input',amSched);
+  div.querySelector('.pan').addEventListener('input',amSched);
+  cont.appendChild(div);
+}
+async function amRolPer(id) {
+  const val=parseInt((document.getElementById(`am-pav${id}`)?.value||'0').replace(/[^0-9+\-]/g,''))||0;
+  const nome=document.querySelector(`#am-pr${id} .pan`)?.value||'Perícia';
+  const criatura=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolar({label:nome,valor:val,tipo:'pericia',personagem:criatura});
+  showRollCard({label:nome,...res,personagem:criatura});
+}
+async function amRolRes(label,fieldId) {
+  const txt=document.getElementById(fieldId)?.value?.trim()||'0';
+  const num=parseInt(txt.replace(/[^0-9+\-]/g,''))||0;
+  const nome=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolar({label,valor:num,tipo:'resistencia',personagem:nome});
+  showRollCard({label,...res,personagem:nome});
+}
+async function amRolAtq(nfid,bfid) {
+  const txt=document.getElementById(bfid)?.value?.trim()||'0';
+  if(txt.toUpperCase().startsWith('CD'))return;
+  const bonus=parseInt(txt.replace(/[^0-9+\-]/g,''))||0;
+  const nome=document.getElementById(nfid)?.value||'Ataque';
+  const criatura=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolar({label:nome,valor:bonus,tipo:'ataque',personagem:criatura});
+  showRollCard({label:`Ataque: ${nome}`,...res,personagem:criatura});
+}
+async function amRolDano(nfid,dfid) {
+  const expr=document.getElementById(dfid)?.value?.trim()||'';if(!expr)return;
+  const nome=document.getElementById(nfid)?.value||'Ataque';
+  const criatura=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolarDano({label:`Dano: ${nome}`,expr,personagem:criatura});
+  showRollCard({label:`Dano: ${nome}`,total:res.total,tipo:'dano',personagem:criatura,isDano:true});
+}
+function amPVBar() {
+  const a=parseInt(document.getElementById('am-pva')?.value)||0;
+  const m=parseInt(document.getElementById('am-pv')?.value)||1;
+  const el=document.getElementById('am-bpv');if(el)el.style.width=Math.max(0,Math.min(100,(a/m)*100))+'%';
+}
+function amAddHE(d={}) {
+  const id=amHECount++;
+  const list=document.getElementById('am-hel');
+  const div=document.createElement('div'); div.className='he2'; div.id=`am-he${id}`;
+  div.innerHTML=`<div class="hh">
+    <input class="hen" type="text" value="${d.nome||''}" placeholder="Nome da habilidade">
+    <input class="het" type="text" value="${d.tipo||''}" placeholder="(Padrão)">
+    <button class="btn-remove" onclick="document.getElementById('am-he${id}').remove();amSched()">✕</button></div>
+    <textarea placeholder="Efeito, CD, alcance, custo de PM…">${d.desc||''}</textarea>`;
+  div.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',amSched));
+  list.appendChild(div);
+}
+function amAddAtqX(d={}) {
+  const id=amAtqXCount++;
+  const cont=document.getElementById('am-atqx');
+  const div=document.createElement('div'); div.className='atq-blk'; div.id=`am-ax${id}`;
+  div.innerHTML=`<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
+    <input type="text" value="${d.tipo||''}" placeholder="Tipo" style="background:transparent;border:none;border-bottom:1px solid var(--border-dim);color:var(--crimson);font-family:'Cinzel',serif;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;flex:1;padding:1px 0;">
+    <button class="btn-remove" onclick="document.getElementById('am-ax${id}').remove();amSched()">✕</button></div>
+  <div class="field" style="margin-bottom:3px"><label>Ataque</label><input type="text" value="${d.nome||''}" placeholder="Nome"></div>
+  <div class="sub3">
+    <div class="field"><label>Teste</label><input type="text" value="${d.teste||''}" placeholder="+8" style="cursor:pointer;color:var(--gold)" onclick="amRolAtqX(this)" title="Clique→rolar"></div>
+    <div class="field"><label>Dano</label><input type="text" value="${d.dano||''}" placeholder="2d8" style="cursor:pointer;color:var(--crimson-lt)" onclick="amRolDanoX(this)" title="Clique→rolar"></div>
+    <div class="field"><label>Extra</label><input type="text" value="${d.extra||''}" placeholder="Alcance/Tipo"></div>
+  </div>`;
+  div.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',amSched));
+  cont.appendChild(div);
+}
+async function amRolAtqX(el){
+  const bonus=parseInt(el.value.replace(/[^0-9+\-]/g,''))||0;
+  const nome=el.closest('.atq-blk')?.querySelector('input')?.value||'Ataque';
+  const criatura=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolar({label:nome,valor:bonus,tipo:'ataque',personagem:criatura});
+  showRollCard({label:`Ataque: ${nome}`,...res,personagem:criatura});
+}
+async function amRolDanoX(el){
+  const expr=el.value.trim();if(!expr)return;
+  const nome=el.closest('.atq-blk')?.querySelector('input')?.value||'Ataque';
+  const criatura=document.getElementById('am-nome')?.value||'';
+  const res=await T20.rolarDano({label:`Dano: ${nome}`,expr,personagem:criatura});
+  showRollCard({label:`Dano: ${nome}`,total:res.total,tipo:'dano',personagem:criatura,isDano:true});
+}
+
+function loadAM(d) {
+  const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+  ['nome','tipo','tam','nd','ini','per','sen','def','fort','ref','von','res','pv','pva','pm','des','cacn','cact','cacd','cacc','distn','distt','distd','dista','eq','tes','not'].forEach(k=>s(`am-${k}`,d[`am-${k}`]??d[k]));
+  ATRIBS.forEach(a=>s(`am-a${a}`,d[`am-a${a}`]??d[`a_${a}`]??0));
+  if(d.pericias?.length){amPerCount=0;document.getElementById('am-perl').innerHTML='';d.pericias.forEach(p=>amAddPer(p));}
+  if(d.habilidades?.length){amHECount=0;document.getElementById('am-hel').innerHTML='';d.habilidades.forEach(h=>amAddHE(h));}
+  if(d.ataques_extras?.length){amAtqXCount=0;document.getElementById('am-atqx').innerHTML='';d.ataques_extras.forEach(a=>amAddAtqX(a));}
+  amPVBar();
+}
+function collectAM() {
+  const v=id=>document.getElementById(id)?.value??'';
+  const d={tipo:'ameaca'};
+  ['nome','tipo','tam','nd','ini','per','sen','def','fort','ref','von','res','pv','pva','pm','des','cacn','cact','cacd','cacc','distn','distt','distd','dista','eq','tes','not'].forEach(k=>d[`am-${k}`]=v(`am-${k}`));
+  ATRIBS.forEach(a=>d[`am-a${a}`]=v(`am-a${a}`));
+  d.pericias=Array.from(document.querySelectorAll('#am-perl .pa')).map(el=>{
+    const id=el.id.replace('am-pr','');
+    return{nome:el.querySelector('.pan')?.value||'',valor:document.getElementById(`am-pav${id}`)?.value||''};
+  });
+  d.habilidades=Array.from(document.querySelectorAll('#am-hel .he2')).map(el=>({
+    nome:el.querySelector('.hen')?.value||'',tipo:el.querySelector('.het')?.value||'',desc:el.querySelector('textarea')?.value||''
+  }));
+  d.ataques_extras=Array.from(document.querySelectorAll('#am-atqx .atq-blk')).map(el=>{
+    const ins=el.querySelectorAll('input[type="text"]');
+    return{tipo:ins[0]?.value,nome:ins[1]?.value,teste:ins[2]?.value,dano:ins[3]?.value,extra:ins[4]?.value};
+  });
+  return d;
+}
+function amSched(){clearTimeout(saveTimerAM);setStat('am','saving','Salvando…');saveTimerAM=setTimeout(salvarAM,1400);}
+async function salvarAM(){
+  clearTimeout(saveTimerAM); setStat('am','saving','Salvando…');
+  const ok=await T20.saveFicha(currentFichaId,collectAM());
+  setStat('am',ok?'saved':'error',ok?'✓ Salvo':'✕ Erro');
+}
+
+/* ════════ AUTO-SAVE: LISTEN INPUTS ════════ */
+function bindInputs(scope, fn) {
+  document.querySelectorAll(`#${scope} input, #${scope} textarea, #${scope} select`).forEach(el=>{
+    if(!el.dataset.bound){el.dataset.bound='1';el.addEventListener('input',fn);}
+  });
+}
+// Bind estático ao carregar; dinâmico via pjSched/amSched chamados em cada addXxx
+
+/* ════════ ROLL OVERLAY ════════ */
+function showRollCard(msg) {
+  const log=document.getElementById('roll-log');
+  const card=document.createElement('div');
+  const pn=msg.personagem?`<span style="color:var(--gold-dim)">${msg.personagem}</span> — `:'';
+  let cls='rc',html='';
+  if(msg.isDano||msg.tipo==='dano'){
+    html=`<div class="rcl">${pn}${msg.label}</div><div class="rcr" style="color:var(--crimson-lt)">${msg.total}</div><div class="rcd">${msg.expr||''} = ${msg.total}</div>`;
+  } else {
+    if(msg.critico)cls+=' crit'; if(msg.fumble)cls+=' fumb';
+    const e=msg.critico?'🎯 CRÍTICO! ':msg.fumble?'💀 FUMBLE! ':'';
+    html=`<div class="rcl">${pn}${msg.label}</div><div class="rcr">${e}${msg.total}</div><div class="rcd">d20(${msg.d20}) ${T20.sinal(msg.modificador||0)} = ${msg.total}</div>`;
+  }
+  card.className=cls;
+  card.innerHTML=html+`<button class="rx" onclick="this.parentElement.remove()">✕</button>`;
+  log.appendChild(card);
+  setTimeout(()=>card.remove(),8000);
+  while(log.children.length>5) log.firstChild.remove();
+}
+
+function setStat(which,cls,txt){const el=document.getElementById(`save-status-${which}`);if(el){el.className=cls||'';el.textContent=txt||'';}}
 </script>
 </body>
 </html>
