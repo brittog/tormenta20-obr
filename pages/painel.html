@@ -210,6 +210,8 @@ input.ptr { width:13px; height:13px; accent-color:var(--crimson); cursor:pointer
 <div id="view-painel">
   <div class="ph">
     <div class="ph-logo">TORMENTA 20 <span>Fichas de Personagem</span></div>
+    <button class="btn btn-ghost" style="font-size:.6rem;padding:4px 8px" onclick="exportarTudo()" title="Exportar todas as fichas como JSON">⬇ Exportar</button>
+    <label class="btn btn-ghost" style="font-size:.6rem;padding:4px 8px;cursor:pointer" title="Importar fichas de um JSON">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importarTudo(this)"></label>
   </div>
   <div id="loading" class="empty">Carregando fichas…</div>
   <div id="lista-pj"></div>
@@ -230,6 +232,7 @@ input.ptr { width:13px; height:13px; accent-color:var(--crimson); cursor:pointer
     </div>
     <div class="hacts">
       <span id="save-status-pj">—</span>
+      <button class="btn btn-ghost" style="font-size:.6rem;padding:4px 8px" onclick="exportarFicha('pj')" title="Baixar ficha como JSON">⬇ JSON</button>
       <button class="btn btn-primary" onclick="salvarPJ()">Salvar</button>
       <button class="btn btn-ghost" onclick="voltarPainel()">← Voltar</button>
     </div>
@@ -370,6 +373,7 @@ input.ptr { width:13px; height:13px; accent-color:var(--crimson); cursor:pointer
     <div><div class="fh-title">TORMENTA 20</div><div class="ht">Ficha de Ameaça</div></div>
     <div class="hacts">
       <span id="save-status-am">—</span>
+      <button class="btn btn-ghost" style="font-size:.6rem;padding:4px 8px" onclick="exportarFicha('am')" title="Baixar ficha como JSON">⬇ JSON</button>
       <button class="btn btn-primary" onclick="salvarAM()">Salvar</button>
       <button class="btn btn-ghost" onclick="voltarPainel()">← Voltar</button>
     </div>
@@ -473,13 +477,28 @@ let amPerCount = 0, amHECount = 0, amAtqXCount = 0;
 const ATRIBS = ['FOR','DES','CON','INT','SAB','CAR'];
 
 /* ════════ INIT ════════ */
-T20.onReady(async () => {
+/* ════════ INICIALIZAÇÃO ════════ */
+async function init() {
   buildPJAtribs(); buildPJPericias();
   buildAMAtribs();
   await renderPainel();
-  try { OBR.room.onMetadataChange(() => { if(showing==='painel') renderPainel(); }); } catch {}
+  T20.onMetadataChange(() => { if(showing==='painel') renderPainel(); });
   T20.onRoll(msg => showRollCard(msg));
-});
+}
+
+// Tentar via OBR.onReady; se não responder em 2s, inicializar mesmo assim
+let inited = false;
+function safeInit() {
+  if (inited) return;
+  inited = true;
+  init();
+}
+if (typeof OBR !== 'undefined') {
+  OBR.onReady(safeInit);
+  setTimeout(safeInit, 2000); // fallback timeout
+} else {
+  setTimeout(safeInit, 100);
+}
 
 /* ════════ NAVEGAÇÃO ════════ */
 let showing = 'painel';
@@ -1051,7 +1070,80 @@ function showRollCard(msg) {
   while(log.children.length>5) log.firstChild.remove();
 }
 
+/* ════════ EXPORT / IMPORT ════════ */
+
+// Baixar ficha atual como JSON
+function exportarFicha(tipo) {
+  const data   = tipo === 'pj' ? collectPJ() : collectAM();
+  const nome   = tipo === 'pj'
+    ? (document.getElementById('pj-nome')?.value || 'personagem')
+    : (document.getElementById('am-nome')?.value || 'ameaca');
+  const slug   = nome.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g,'_').slice(0,40);
+  const ts     = new Date().toISOString().slice(0,10);
+  const fname  = `t20_${slug}_${ts}.json`;
+  baixarJSON(data, fname);
+  setStat(tipo, 'saved', '✓ JSON baixado');
+}
+
+// Exportar TODAS as fichas como um único JSON
+async function exportarTudo() {
+  const todas = await T20.getAllFichas();
+  const ts    = new Date().toISOString().slice(0,10);
+  baixarJSON({ fichas: todas, exportado_em: new Date().toISOString(), versao: '1.0' }, `t20_fichas_${ts}.json`);
+}
+
+// Importar fichas de um JSON (individual ou exportação completa)
+async function importarTudo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      let importadas = 0;
+
+      if (parsed.fichas) {
+        // Exportação completa: { fichas: { id: fichaData, ... } }
+        for (const [id, data] of Object.entries(parsed.fichas)) {
+          await T20.saveFicha(id, data);
+          importadas++;
+        }
+      } else if (parsed.tipo) {
+        // Ficha individual: { tipo: 'personagem'|'ameaca', ... }
+        const id = parsed._id || T20.uuid();
+        await T20.saveFicha(id, parsed);
+        importadas = 1;
+      } else {
+        alert('Arquivo JSON inválido — não parece ser uma ficha do T20.');
+        return;
+      }
+
+      await renderPainel();
+      alert(`✓ ${importadas} ficha(s) importada(s) com sucesso!`);
+    } catch (err) {
+      alert('Erro ao ler o arquivo: ' + err.message);
+    }
+    // Resetar o input para permitir reimportar o mesmo arquivo
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// Helper: cria e clica em um link de download
+function baixarJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function setStat(which,cls,txt){const el=document.getElementById(`save-status-${which}`);if(el){el.className=cls||'';el.textContent=txt||'';}}
+
 </script>
 </body>
 </html>
