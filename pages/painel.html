@@ -503,10 +503,12 @@ if (typeof OBR !== 'undefined') {
 /* ════════ NAVEGAÇÃO ════════ */
 let showing = 'painel';
 function show(view) {
-  document.getElementById('view-painel').style.display = view==='painel' ? '' : 'none';
-  document.getElementById('view-pj').style.display     = view==='pj'     ? '' : 'none';
-  document.getElementById('view-am').style.display     = view==='am'     ? '' : 'none';
-  showing = view;
+  try {
+    document.getElementById('view-painel').style.display = view==='painel' ? '' : 'none';
+    document.getElementById('view-pj').style.display     = view==='pj'     ? '' : 'none';
+    document.getElementById('view-am').style.display     = view==='am'     ? '' : 'none';
+    showing = view;
+  } catch(e) { console.error('[T20] show() erro:', e); }
 }
 
 async function voltarPainel() {
@@ -549,18 +551,24 @@ function fichaCard(f) {
 async function novaFicha(tipo) {
   currentFichaId   = T20.uuid();
   currentFichaTipo = tipo;
-  await T20.saveFicha(currentFichaId, { tipo });
+  // Mostrar a ficha PRIMEIRO (não bloquear na espera do save)
   resetFicha(tipo);
   show(tipo==='personagem'?'pj':'am');
+  // Salvar em background
+  T20.saveFicha(currentFichaId, { tipo }).catch(e => console.warn('[T20] save background:', e));
 }
 
 async function abrirFicha(id, tipo) {
   currentFichaId   = id;
   currentFichaTipo = tipo;
-  const d = await T20.getFicha(id);
+  // Mostrar a view imediatamente, carregar dados depois
   resetFicha(tipo);
-  if (d) tipo==='personagem' ? loadPJ(d) : loadAM(d);
   show(tipo==='personagem'?'pj':'am');
+  // Carregar dados em background
+  try {
+    const d = await T20.getFicha(id);
+    if (d) tipo==='personagem' ? loadPJ(d) : loadAM(d);
+  } catch(e) { console.warn('[T20] abrirFicha load:', e); }
 }
 
 async function excluirFicha(id, e) {
