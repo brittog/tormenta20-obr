@@ -503,12 +503,10 @@ if (typeof OBR !== 'undefined') {
 /* ════════ NAVEGAÇÃO ════════ */
 let showing = 'painel';
 function show(view) {
-  try {
-    document.getElementById('view-painel').style.display = view==='painel' ? '' : 'none';
-    document.getElementById('view-pj').style.display     = view==='pj'     ? '' : 'none';
-    document.getElementById('view-am').style.display     = view==='am'     ? '' : 'none';
-    showing = view;
-  } catch(e) { console.error('[T20] show() erro:', e); }
+  document.getElementById('view-painel').style.display = view==='painel' ? 'block' : 'none';
+  document.getElementById('view-pj').style.display     = view==='pj'     ? 'block' : 'none';
+  document.getElementById('view-am').style.display     = view==='am'     ? 'block' : 'none';
+  showing = view;
 }
 
 async function voltarPainel() {
